@@ -1,0 +1,2 @@
+# TGL
+Tiny Generic/General Library is a C++ library, a collection of objects that use WinAPI and STL mainly centered round video game development.
