@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1673188938 source:d:\programming\projects (portfolio)\2023.01.07 (tgl)\main.cpp
+	<iostream>
+	"TGL.h"
+
+1673189343 d:\programming\projects (portfolio)\2023.01.07 (tgl)\tgl.h
+	<iostream>
+	<windows.h>
+	"tglObject.h"
+	"TGL Functions.h"
+
+1673189268 d:\programming\projects (portfolio)\2023.01.07 (tgl)\tglobject.h
+
+1673189310 d:\programming\projects (portfolio)\2023.01.07 (tgl)\tgl functions.h
+
