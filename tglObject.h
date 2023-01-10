@@ -38,8 +38,12 @@ TGL::tglObject::~tglObject()
 
 void TGL::tglObject::DisplayValues() const
 {
-    std::cout << "\n    TGL::" << this->identity() << ':';
+    std::cout << "    TGL::" << TGL::ClassName(this->identity()) << ':';
 }
+
+
+
+#include "tglObject Functions.h"
 
 
 

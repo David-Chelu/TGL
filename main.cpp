@@ -5,6 +5,13 @@
 
 int main()
 {
+    TGL::tglObject
+        *window = new TGL::tglWindow;
+
+    window->DisplayValues();
+
+    delete window;
+
 
 
     MessageBox(NULL,

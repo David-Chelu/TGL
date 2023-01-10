@@ -7,6 +7,16 @@
 
 #if 1 // miscellaneous functions
 
+const char *TGL::ClassName(TGL::Identity identity)
+{
+    switch(identity)
+    {
+        case TGL::Identity::TGL_WINDOW: return "tglWindow";
+    }
+
+    return "Invalid Identity";
+}
+
 #endif // miscellaneous functions
 
 

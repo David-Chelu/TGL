@@ -21,6 +21,7 @@ namespace TGL
     #if 1 // TGL classes
 
     class tglObject;
+    class tglWindow;
 
     #endif // TGL classes
 
@@ -30,6 +31,7 @@ namespace TGL
 
     enum Identity
     {
+        TGL_WINDOW
     };
 
     #endif // enum types
@@ -56,6 +58,9 @@ namespace TGL
 
         #if 1 // miscellaneous functions
 
+        const char
+            *ClassName(TGL::Identity identity);
+
         #endif // miscellaneous functions
 
 
@@ -71,6 +76,7 @@ namespace TGL
 
 
 #include "tglObject.h"
+#include "tglWindow.h"
 #include "TGL Functions.h"
 
 
