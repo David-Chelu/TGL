@@ -12,9 +12,8 @@ const char *TGL::ClassName(TGL::Identity identity)
     switch(identity)
     {
         case TGL::Identity::TGL_WINDOW: return "tglWindow";
+        default:                        return "Invalid Identity";
     }
-
-    return "Invalid Identity";
 }
 
 #endif // miscellaneous functions
