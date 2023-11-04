@@ -26,6 +26,23 @@ typedef uint64_t largeuint_t;
 #define NEGATIVE -1
 #define POSITIVE  1
 
+#define CLASS_ID(object) typeid(object).name()
+#define CLASS_NAME(object) TGL::className[CLASS_ID(object)]
+#define CLASS_IDENTITY \
+std::string("\tTGL::")\
+          + CLASS_NAME(*this)
+#define OBJECT_ID "ID: " + TGL::String(this->m_ID)
+
+#define GameLoop \
+MSG message;\
+if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))\
+{\
+    TranslateMessage(&message);\
+    DispatchMessage (&message);\
+}\
+else\
+
+
 #define Templated template<typename DataType>
 
 
@@ -35,6 +52,11 @@ namespace TGL
     // TGL classes
 
     class tglObject;
+    class tglWindow;
+
+
+
+    struct WindowAttributes;
 
 
 
@@ -95,12 +117,18 @@ namespace TGL
     Templated inline DataType Mod(DataType a, DataType b);
     Templated inline DataType Pow(DataType a, DataType b);
 
+    inline int
+        xScreen(),
+        yScreen(),
+        Message(const std::string &title, const std::string &description);
+
     // TGL functions
 }
 
 
 
 #include "tglObject.h"
+#include "tglWindow.h"
 #include "TGL Functions.h"
 
 
@@ -111,6 +139,7 @@ namespace TGL
         className =
     {
         { typeid(TGL::tglObject).name(), "tglObject" }
+       ,{ typeid(TGL::tglWindow).name(), "tglWindow" }
     };
 }
 

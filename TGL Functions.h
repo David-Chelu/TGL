@@ -117,6 +117,21 @@ Templated DataType TGL::Pow(DataType a, DataType b)
     return pow(a, b);
 }
 
+int TGL::xScreen()
+{
+    return GetSystemMetrics(SM_CXSCREEN);
+}
+
+int TGL::yScreen()
+{
+    return GetSystemMetrics(SM_CYSCREEN);
+}
+
+int TGL::Message(const std::string &title, const std::string &description)
+{
+    return MessageBox(NULL, description.c_str(), title.c_str(), MB_OK);
+}
+
 
 
 #endif // TGL_FUNCTIONS_H

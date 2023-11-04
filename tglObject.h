@@ -13,11 +13,16 @@ public:
 
 
     virtual void
-        Clear(),
+        Clear();
+
+    inline virtual void
         DisplayValues() const;
 
     void
         Reset();
+
+    inline std::string
+        GetValues() const;
 
 
 
@@ -59,16 +64,18 @@ void TGL::tglObject::Clear()
 
 void TGL::tglObject::DisplayValues() const
 {
-    std::cout << std::string("\tTGL::")
-               + TGL::className[typeid(*this).name()]
-               + ":\nID: " + TGL::String(this->m_ID)
-               + "\n\n\n\n";
+    std::cout << this->GetValues() + "\n\n\n\n";
 }
 
 void TGL::tglObject::Reset()
 {
     this->Clear();
     this->Initialize();
+}
+
+std::string TGL::tglObject::GetValues() const
+{
+    return CLASS_IDENTITY + ":\n" + OBJECT_ID;
 }
 
 
