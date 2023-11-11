@@ -8,6 +8,16 @@ int8_t TGL::Sign(largeint_t value)
     return (value < 0? -1 : 1);
 }
 
+char TGL::DigitUppercase(int8_t digit)
+{
+    return (digit < 10? 48 + digit : 55 + digit);
+}
+
+char TGL::DigitLowercase(int8_t digit)
+{
+    return (digit < 10? 48 + digit : 87 + digit);
+}
+
 uint16_t TGL::Digits(largeint_t value)
 {
     static uint16_t
@@ -82,6 +92,63 @@ std::string TGL::String(double value, uint8_t precision)
     return TGL::String(int64_t(whole)) + '.' + TGL::String(int64_t(value));
 }
 
+std::string TGL::StringBinary(largeuint_t value)
+{
+    std::string
+        result;
+
+    result.reserve(sizeof(value) * 8);
+
+    do
+    {
+        result.push_back(char(48 + value % 2));
+
+        value >>= 1;
+    }
+    while (value);
+
+    std::reverse(result.begin(), result.end());
+
+    return result;
+}
+
+std::string TGL::StringHex(largeuint_t value)
+{
+    std::string
+        result;
+
+    result.reserve(sizeof(value) * 2 + 2);
+
+    do
+    {
+        result.push_back(TGL::DigitUppercase(value & 15));
+
+        value >>= 4;
+    }
+    while (value);
+
+    result += "x0";
+
+    std::reverse(result.begin(), result.end());
+
+    return result;
+}
+
+std::string TGL::BitmapInfoValues(const BITMAPINFO &info)
+{
+    return std::string("Bitmap Info:")
+                     + "\n\tbiBitCount: " + TGL::String(info.bmiHeader.biBitCount)
+                     + "\n\tbiPlanes: "   + TGL::String(info.bmiHeader.biPlanes)
+                     + "\n\tbiSize: "     + TGL::String(info.bmiHeader.biSize)
+                     + "\n\tbiWidth: "    + TGL::String(info.bmiHeader.biWidth)
+                     + "\n\tbiHeight: "   + TGL::String(info.bmiHeader.biHeight);
+}
+
+COLORREF TGL::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+{
+    return uint32_t(blue) | uint32_t(green) << 8 | uint32_t(red) << 16 | uint32_t(alpha) << 24;
+}
+
 Templated DataType TGL::Abs(DataType value)
 {
     return (value < 0? -value : value);
@@ -130,6 +197,33 @@ int TGL::yScreen()
 int TGL::Message(const std::string &title, const std::string &description)
 {
     return MessageBox(NULL, description.c_str(), title.c_str(), MB_OK);
+}
+
+
+
+namespace TGL
+{
+    void
+        Initialize(),
+        Clear();
+}
+
+void TGL::Initialize()
+{
+}
+
+void TGL::Clear()
+{
+    for (uint64_t index = 0; index < TGL::oArray.size(); ++index)
+    {
+        if (TGL::oActive[index])
+        {
+            delete TGL::oArray[index];
+        }
+    }
+
+    TGL::oActive.clear();
+    TGL::oArray.clear();
 }
 
 

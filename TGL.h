@@ -33,14 +33,21 @@ std::string("\tTGL::")\
           + CLASS_NAME(*this)
 #define OBJECT_ID "ID: " + TGL::String(this->m_ID)
 
-#define GameLoop \
-MSG message;\
+#define LoopStart \
+while (1)\
+{\
+static MSG message;\
 if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))\
 {\
     TranslateMessage(&message);\
     DispatchMessage (&message);\
 }\
-else\
+else
+
+#define LoopEnd }
+
+#define StartTGL() { TGL::Initialize()
+#define EndTGL() } TGL::Clear()
 
 
 #define Templated template<typename DataType>
@@ -53,6 +60,7 @@ namespace TGL
 
     class tglObject;
     class tglWindow;
+    class tglVideo;
 
 
 
@@ -73,10 +81,27 @@ namespace TGL
 
 
 
+    // TGL enums
+
+    enum class VideoMode
+    {
+        Bits
+    };
+
+    // TGL enums
+
+
+
     // TGL variables
 
     extern std::map<const std::string, const std::string>
         className;
+
+    std::map<const TGL::VideoMode, const std::string>
+        modeName =
+    {
+        { TGL::VideoMode::Bits, "Bits" }
+    };
 
     HINSTANCE
         creationInstance = (HINSTANCE)GetModuleHandle(0);
@@ -93,6 +118,9 @@ namespace TGL
                    ,WPARAM wParam
                    ,LPARAM lParam);
 
+    constexpr uint16_t
+        bitCount = 32;
+
     // TGL variables
 
 
@@ -102,12 +130,23 @@ namespace TGL
     inline int8_t
         Sign(largeint_t value);
 
+    inline char
+        DigitUppercase(int8_t digit),
+        DigitLowercase(int8_t digit);
+
     inline uint16_t
         Digits(largeint_t value);
 
     std::string
-        String(largeint_t value),
-        String(double value, uint8_t precision);
+        String(largeint_t value)
+       ,String(double value, uint8_t precision)
+       ,StringBinary(largeuint_t value)
+       ,StringHex(largeuint_t value)
+       ,BitmapInfoValues(const BITMAPINFO &info)
+       ;
+
+    COLORREF
+        Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
 
     Templated inline DataType Abs(DataType value);
     Templated inline DataType Min(DataType a, DataType b);
@@ -129,6 +168,7 @@ namespace TGL
 
 #include "tglObject.h"
 #include "tglWindow.h"
+#include "tglVideo.h"
 #include "TGL Functions.h"
 
 
@@ -140,6 +180,7 @@ namespace TGL
     {
         { typeid(TGL::tglObject).name(), "tglObject" }
        ,{ typeid(TGL::tglWindow).name(), "tglWindow" }
+       ,{ typeid(TGL::tglVideo ).name(), "tglVideo"  }
     };
 }
 

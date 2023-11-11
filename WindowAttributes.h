@@ -151,14 +151,14 @@ std::string TGL::WindowAttributes::GetValues() const
     text = std::string("WindowAttributes: ")
          + "\n\tClass Name: " + this->className
          + "\n\tWindowName: " + this->windowName
-         + "\n\tStyle: " + TGL::String(this->style)
+         + "\n\tStyle: " + TGL::StringHex(this->style)
          + "\n\tPosition: (" + TGL::String(this->xPosition) + ", " + TGL::String(this->yPosition) + ')'
          + "\n\tSize: (" + TGL::String(this->width) + ", " + TGL::String(this->height) + ')'
          + "\n\tHas Parent: " + (this->parent? "Yes" : "No")
          + "\n\tHas Menu: " + (this->menu? "Yes" : "No")
          + "\n\tHas Instance: " + (this->instance? "Yes" : "No")
          + "\n\tLPParam: " + (this->lpParam? "Not NULL" : "NULL")
-         + "\n\tHas Callback: " + (this->callback? "Yes; " + TGL::String(largeint_t(this->callback)) : "No")
+         + "\n\tHas Callback: " + (this->callback? "Yes; " + TGL::StringHex(largeint_t(this->callback)) : "No")
          + "\n\tBackground: " + TGL::String(this->background)
          ;
 

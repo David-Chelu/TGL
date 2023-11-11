@@ -294,7 +294,7 @@ void TGL::tglWindow::Decenter()
 std::string TGL::tglWindow::GetValues() const
 {
     return this->TGL::tglObject::GetValues()
-           + "\nHas Handle: " + (this->m_handle? ("Yes; " + TGL::String(largeint_t(this->m_handle))) : "No")
+           + "\nHas Handle: " + (this->m_handle? ("Yes; " + TGL::StringHex(largeint_t(this->m_handle))) : "No")
            + "\nCurrent " + this->current.GetValues()
            + "\n\nPlanned " + this->planned.GetValues()
            ;
