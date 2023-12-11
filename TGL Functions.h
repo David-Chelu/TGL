@@ -144,9 +144,38 @@ std::string TGL::BitmapInfoValues(const BITMAPINFO &info)
                      + "\n\tbiHeight: "   + TGL::String(info.bmiHeader.biHeight);
 }
 
+std::string TGL::Colors(COLORREF pixel)
+{
+    return '(' + TGL::String(TGL::Red  (pixel))
+        + ", " + TGL::String(TGL::Green(pixel))
+        + ", " + TGL::String(TGL::Blue (pixel))
+        + ", " + TGL::String(TGL::Alpha(pixel))
+        +  ')';
+}
+
 COLORREF TGL::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
     return uint32_t(blue) | uint32_t(green) << 8 | uint32_t(red) << 16 | uint32_t(alpha) << 24;
+}
+
+COLORREF TGL::Red(COLORREF color)
+{
+    return ((uint32_t(0xFF) << 16) & color) >> 16;
+}
+
+COLORREF TGL::Green(COLORREF color)
+{
+    return ((uint32_t(0xFF) << 8) & color) >> 8;
+}
+
+COLORREF TGL::Blue(COLORREF color)
+{
+    return uint32_t(0xFF) & color;
+}
+
+COLORREF TGL::Alpha(COLORREF color)
+{
+    return ((uint32_t(0xFF) << 24) & color) >> 24;
 }
 
 Templated DataType TGL::Abs(DataType value)

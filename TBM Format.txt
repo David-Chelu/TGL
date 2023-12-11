@@ -1,0 +1,16 @@
+The format is minimalist in storage.
+
+First 24 bytes are the TGL::HeaderTBM header struct:
+	-8 bytes uint width (image width, in pixels)
+	-8 bytes uint height (image height, in pixels)
+	-4 bytes uint compression (enum class TGL::ImageCompression), which can take values None and Count
+	-1 byte (padded so it takes up 4 bytes) uint bitCount (bit count per pixel)
+
+Compression:
+	-None means every single pixel is saved to file individually, meaning that for a 16x16 image, (16 * 16 * bitCount / 8) bytes would be saved to file after the header
+	-Count means whenever there's 1 or more identical pixels in a row, the count + color are memorized. In other words, 4 bytes as the number of copies of the following 4 bytes (as a 32bit pixel)
+	-(planned) Pattern means the check is done on sequences (be it a few pixels in a row, or a matrix of pixels) plus count
+	-(might be considered) Lambda means the format will be formula based. It can integrate algorithms, patterns, inversions, all kinds of stuff to really shrink the file size as much as possible. This would allow custom algorithms from the outside
+
+Mentions:
+	-implementation in TGL is written around 32bit pixels; if you change this, a code revamp might be necessary for it to work

@@ -30,6 +30,9 @@ public:
        ,&operator =(const TGL::tglWindow &window)
        ;
 
+    operator bool() const;
+    bool operator !() const;
+
 
 
     bool
@@ -37,6 +40,8 @@ public:
        ,Hide()
        ,Update(HWND insertAfter = NULL, UINT flags = SWP_SHOWWINDOW)
        ,FillScreen()
+       ,Center()
+       ,Decenter()
        ;
 
     HWND
@@ -49,8 +54,6 @@ public:
     void
         Clear()
        ,Reset()
-       ,Center()
-       ,Decenter()
        ;
 
     inline std::string
@@ -61,8 +64,8 @@ public:
     const HWND
         handle() const;
 
-    bool
-        centered() const;
+    const bool
+        &centered;
 
     const TGL::WindowAttributes
         &current;
@@ -91,7 +94,7 @@ private:
 
 
 
-TGL::tglWindow::tglWindow() : current(m_current), planned(m_planned)
+TGL::tglWindow::tglWindow() : current(m_current), planned(m_planned), centered(m_centered)
 {
     this->Initialize();
 }
@@ -143,6 +146,16 @@ TGL::tglWindow &TGL::tglWindow::operator =(const TGL::tglWindow &window)
     return *this;
 }
 
+TGL::tglWindow::operator bool() const
+{
+    return !!this->m_handle;
+}
+
+bool TGL::tglWindow::operator !() const
+{
+    return !this->m_handle;
+}
+
 
 
 bool TGL::tglWindow::Show()
@@ -169,8 +182,8 @@ bool TGL::tglWindow::Update(HWND insertAfter, UINT flags)
 {
     if (SetWindowPos(this->m_handle
                     ,insertAfter
-                    ,planned.xPosition - this->m_centered * planned.width  / 2
-                    ,planned.yPosition - this->m_centered * planned.height / 2
+                    ,this->m_centered? (TGL::xScreen() - planned.width)  / 2 : planned.xPosition
+                    ,this->m_centered? (TGL::yScreen() - planned.height) / 2 : planned.yPosition
                     ,planned.width
                     ,planned.height
                     ,flags
@@ -197,6 +210,30 @@ bool TGL::tglWindow::FillScreen()
     this->planned.height = TGL::yScreen();
 
     return this->Update();
+}
+
+bool TGL::tglWindow::Center()
+{
+    if (!this->m_centered)
+    {
+        this->m_centered = true;
+
+        this->Update();
+    }
+
+    return this->m_centered;
+}
+
+bool TGL::tglWindow::Decenter()
+{
+    if (this->m_centered)
+    {
+        this->m_centered = false;
+
+        this->Update();
+    }
+
+    return !this->m_centered;
 }
 
 HWND TGL::tglWindow::Create()
@@ -227,8 +264,8 @@ HWND TGL::tglWindow::Create(const TGL::WindowAttributes &attributes)
     if (!(this->m_handle = CreateWindow(attributes. className.c_str()
                                        ,attributes.windowName.c_str()
                                        ,attributes.style
-                                       ,attributes.xPosition - this->m_centered * attributes.width  / 2
-                                       ,attributes.yPosition - this->m_centered * attributes.height / 2
+                                       ,this->m_centered? (TGL::xScreen() - attributes.width)  / 2 : attributes.xPosition
+                                       ,this->m_centered? (TGL::yScreen() - attributes.height) / 2 : attributes.yPosition
                                        ,attributes.width
                                        ,attributes.height
                                        ,attributes.parent
@@ -271,26 +308,6 @@ void TGL::tglWindow::Reset()
     this->m_planned.Initialize();
 }
 
-void TGL::tglWindow::Center()
-{
-    if (!this->m_centered)
-    {
-        this->m_centered = true;
-
-        this->Update();
-    }
-}
-
-void TGL::tglWindow::Decenter()
-{
-    if (this->m_centered)
-    {
-        this->m_centered = false;
-
-        this->Update();
-    }
-}
-
 std::string TGL::tglWindow::GetValues() const
 {
     return this->TGL::tglObject::GetValues()
@@ -305,11 +322,6 @@ std::string TGL::tglWindow::GetValues() const
 const HWND TGL::tglWindow::handle() const
 {
     return this->m_handle;
-}
-
-bool TGL::tglWindow::centered() const
-{
-    return this->m_centered;
 }
 
 

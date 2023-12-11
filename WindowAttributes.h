@@ -23,8 +23,8 @@ struct TGL::WindowAttributes
 
 
 
-    WindowAttributes
-        &operator =(const WindowAttributes &attributes);
+    TGL::WindowAttributes
+        &operator =(const TGL::WindowAttributes &attributes);
 
 
 
@@ -116,7 +116,7 @@ TGL::WindowAttributes::WindowAttributes(const std::string &className
 
 
 
-TGL::WindowAttributes &TGL::WindowAttributes::operator =(const WindowAttributes &attributes)
+TGL::WindowAttributes &TGL::WindowAttributes::operator =(const TGL::WindowAttributes &attributes)
 {
     this->className  = attributes.className;
     this->windowName = attributes.windowName;
@@ -148,7 +148,7 @@ std::string TGL::WindowAttributes::GetValues() const
     std::string
         text;
 
-    text = std::string("WindowAttributes: ")
+    text = std::string("WindowAttributes:")
          + "\n\tClass Name: " + this->className
          + "\n\tWindowName: " + this->windowName
          + "\n\tStyle: " + TGL::StringHex(this->style)

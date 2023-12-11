@@ -11,6 +11,7 @@
 
 #include <windows.h>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include <string>
@@ -25,6 +26,11 @@ typedef uint64_t largeuint_t;
 
 #define NEGATIVE -1
 #define POSITIVE  1
+
+#define BLUE  1
+#define GREEN 1 << 1
+#define RED   1 << 2
+#define ALPHA 1 << 3
 
 #define CLASS_ID(object) typeid(object).name()
 #define CLASS_NAME(object) TGL::className[CLASS_ID(object)]
@@ -61,10 +67,13 @@ namespace TGL
     class tglObject;
     class tglWindow;
     class tglVideo;
+    class tglBitmap;
 
 
 
     struct WindowAttributes;
+    struct ImageAttributes;
+    struct HeaderTBM;
 
 
 
@@ -86,6 +95,13 @@ namespace TGL
     enum class VideoMode
     {
         Bits
+       ,Bitmap
+    };
+
+    enum class ImageCompression
+    {
+        None
+       ,Count
     };
 
     // TGL enums
@@ -100,7 +116,8 @@ namespace TGL
     std::map<const TGL::VideoMode, const std::string>
         modeName =
     {
-        { TGL::VideoMode::Bits, "Bits" }
+        { TGL::VideoMode::Bits,   "Bits"   }
+       ,{ TGL::VideoMode::Bitmap, "Bitmap" }
     };
 
     HINSTANCE
@@ -143,10 +160,16 @@ namespace TGL
        ,StringBinary(largeuint_t value)
        ,StringHex(largeuint_t value)
        ,BitmapInfoValues(const BITMAPINFO &info)
+       ,Colors(COLORREF pixel)
        ;
 
-    COLORREF
-        Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
+    inline COLORREF
+        Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
+       ,Red(COLORREF color)
+       ,Green(COLORREF color)
+       ,Blue(COLORREF color)
+       ,Alpha(COLORREF color)
+       ;
 
     Templated inline DataType Abs(DataType value);
     Templated inline DataType Min(DataType a, DataType b);
@@ -168,6 +191,7 @@ namespace TGL
 
 #include "tglObject.h"
 #include "tglWindow.h"
+#include "tglBitmap.h"
 #include "tglVideo.h"
 #include "TGL Functions.h"
 
@@ -181,6 +205,7 @@ namespace TGL
         { typeid(TGL::tglObject).name(), "tglObject" }
        ,{ typeid(TGL::tglWindow).name(), "tglWindow" }
        ,{ typeid(TGL::tglVideo ).name(), "tglVideo"  }
+       ,{ typeid(TGL::tglBitmap).name(), "tglBitmap" }
     };
 }
 
