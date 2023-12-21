@@ -34,8 +34,8 @@ struct ColorWithSize_t
 
 
 
-//    Stretch?
-//    Crop
+// TODO:
+//    Stretch - this will have divide and multiply variants, and will compress or expand the image's pixels (as opposed to cropping)
 //    Flip / Swap(color1, color2)
 //    Invert(colors) (using |)
 //    Normalize(colors, low, high) // low and high are the lowest and highest points for the colors. They will be proportionally reduced to this interval.
@@ -45,6 +45,27 @@ struct ColorWithSize_t
 //    Eliminate(colors, below, above) // below is a threshold below which all selected color values are removed, and above is a threshold above which all selected color values are removed. Has a case for x < below || x > above, as well as for x > below && x < above
 //    ContrastImage(pivot, power) // each pixel's highest intensity is its intensity. Using that, each pixel is pushed with power away from pivot, creating more contrasted colors
 //    Snap/Reduce(bits, colors) // simulates less bits per pixel (so if 8bit for red and has value 11, with a conversion to 4bit, the red value becomes 16. For 5bit, it becomes 8. For 7bit, it becomes either 10 or 12. bits is the value to simulate
+//    Crop Variants:
+//        -Crop = {xStart, yStart, xStop, yStop}
+//            -CropStart = {xStart, yStart}
+//            -CropStop = {xStop, yStop}
+//            -CropX = {xStart, xStop}
+//                -CropStartX = {xStart}
+//                -CropStopX = {xStop}
+//            -CropY = {yStart, yStop}
+//                -CropStartY = {yStart}
+//                -CropStopY = {yStop}
+//            -CropDivide = {xPivot = BEGIN, yPivot = BEGIN, xDivisor, yDivisor}
+//                -CropDivideX = {xPivot, xDivisor}
+//                -CropDivideY = {yPivot, yDivisor}
+//                -maybe add CropDivideBegin, CropDivideMiddle, CropDivideEnd and their x and y subvariants
+//            -CropMultiply = {xPivot = BEGIN, yPivot = BEGIN, xDivisor, yDivisor}
+//                -CropMultiplyX = {xPivot, xMultiplier}
+//                -CropMultiplyY = {yPivot, yMultiplier}
+//                -maybe add CropMultiplyBegin, CropMultiplyMiddle, CropMultiplyEnd and their x and y subvariants
+//    DrawGradient // based on vertices, will create gradients between points
+//    DrawCells // based on vertices, will create cells between points. Each cell is defined as the color
+//    DrawPattern // the RGB(x, y, x*y) one, with variou parameters to customize size, the pattern itself, colors, etc.
 
 class TGL::tglBitmap : public TGL::tglObject
 {
@@ -254,9 +275,9 @@ TGL::tglBitmap &TGL::tglBitmap::Copy(const TGL::tglBitmap &source)
 
     if (source.image && this->Allocate())
     {
-        memcpy(this->m_image,
-               source.image,
-               this->m_size * this->m_current.bitCount / 8);
+        CopyMemory(this->m_image,
+                   source.image,
+                   this->m_size * this->m_current.bitCount / 8);
     }
 
 
@@ -354,6 +375,86 @@ bool TGL::tglBitmap::Exists(const char *file)
 
     return false;
 }
+
+/*
+bool TGL::tglBitmap::Crop(largeuint_t xSize, largeuint_t ySize)
+{
+    TGL::Message("Crop(" + TGL::String(xSize) + ", " + TGL::String(ySize) + ')', "");
+
+    if (0 == this->m_size)
+    {
+        return false;
+    }
+
+    if (-1 == xSize)
+    {
+        xSize = this->m_current.width;
+    }
+
+    if (-1 == ySize)
+    {
+        ySize = this->m_current.height;
+    }
+
+    TGL::Message("Crop(" + TGL::String(xSize) + ", " + TGL::String(ySize) + ')', "");
+
+
+
+    if (xSize != this->m_current.width)
+    {
+        if (ySize != this->m_current.height)
+        {
+            TGL::Message("Current Branch", "Different xSize\nDifferent ySize");
+            // TODO: different height, different width
+        }
+        else
+        {
+            TGL::Message("Current Branch", "Different xSize");
+            // TODO: same height, different width
+        }
+    }
+    else
+    {
+        if (ySize != this->m_current.height)
+        {
+            TGL::Message("Current Branch", "Different ySize");
+
+            //TODO: debug, it enters this branch but the crop doesn't take place
+
+            COLORREF
+                *backup;
+
+            largeuint_t
+                backupSize;
+
+            backup = this->m_image;
+            backupSize = this->m_size;
+            this->m_image = NULL;
+
+            this->m_planned.height = ySize;
+
+            this->Allocate();
+            ZeroMemory(this->m_image, this->m_size * this->m_current.bitCount / 8);
+            CopyMemory(this->m_image,
+                       backup,
+                       TGL::Min(this->m_size, backupSize) * this->m_current.bitCount / 8);
+
+            TGL::Message("yCrop values",
+                         "size: " + TGL::String(this->m_size)
+                       + "\nsize: " + TGL::String(backupSize)
+                       + "\nwidth: " + TGL::String(this->m_current.width)
+                       + "\nheight: " + TGL::String(this->m_current.height)
+                       );
+
+            delete []backup;
+        }
+    }
+
+
+
+    return true;
+}
+*/
 
 void TGL::tglBitmap::DisplayValues() const
 {
@@ -533,10 +634,10 @@ largeuint_t TGL::tglBitmap::Load(const char *file)
         for (largeuint_t column = 0; column < this->m_current.width; ++column)
         {
             // Use this for interesting color changes
-            // memcpy(((char*)(this->m_selectedLine)) + column * 4 + 1, buffer + column * 3, 3);
+            // CopyMemory(((char*)(this->m_selectedLine)) + column * 4 + 1, buffer + column * 3, 3);
 
             // Consider making this a lambda instead, to choose how to copy red, green, and blue individually. That way, arrangements like 2 lines above can take place.
-            memcpy(this->m_selectedLine + column, buffer + column * bytesPerPixel, bytesPerPixel);
+            CopyMemory(this->m_selectedLine + column, buffer + column * bytesPerPixel, bytesPerPixel);
         }
     }
 

@@ -32,6 +32,10 @@ typedef uint64_t largeuint_t;
 #define RED   1 << 2
 #define ALPHA 1 << 3
 
+#define BEGIN 0
+#define MIDDLE -2
+#define END -1
+
 #define CLASS_ID(object) typeid(object).name()
 #define CLASS_NAME(object) TGL::className[CLASS_ID(object)]
 #define CLASS_IDENTITY \
