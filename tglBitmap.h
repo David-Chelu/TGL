@@ -65,7 +65,6 @@ struct ColorWithSize_t
 //                -maybe add CropMultiplyBegin, CropMultiplyMiddle, CropMultiplyEnd and their x and y subvariants
 //    DrawGradient // based on vertices, will create gradients between points
 //    DrawCells // based on vertices, will create cells between points. Each cell is defined as the color
-//    DrawPattern // the RGB(x, y, x*y) one, with variou parameters to customize size, the pattern itself, colors, etc.
 
 class TGL::tglBitmap : public TGL::tglObject
 {
@@ -96,15 +95,18 @@ public:
        ,Center()
        ,Decenter()
        ,Exists()
-       ,Exists(const std::string &file)
+       ;
+
+    static bool
+        Exists(const std::string &file)
        ,Exists(const char *file)
        ;
 
     inline void
-        DisplayValues() const,
-        Reset(),
-        Clear();
-
+        DisplayValues() const
+       ,Reset()
+       ,Clear()
+       ;
 
     inline std::string
         GetValues() const;
@@ -351,12 +353,12 @@ bool TGL::tglBitmap::Decenter()
 
 bool TGL::tglBitmap::Exists()
 {
-    return this->Exists(this->m_directory);
+    return Exists(this->m_directory);
 }
 
 bool TGL::tglBitmap::Exists(const std::string &file)
 {
-    return this->Exists(file.c_str());
+    return Exists(file.c_str());
 }
 
 bool TGL::tglBitmap::Exists(const char *file)
@@ -744,7 +746,7 @@ largeuint_t TGL::tglBitmap::LoadTBM(const char *file)
 
     if (!opener.is_open())
     {
-        return 0;
+        return -1;
     }
 
     TGL::HeaderTBM

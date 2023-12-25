@@ -72,6 +72,7 @@ namespace TGL
     class tglWindow;
     class tglVideo;
     class tglBitmap;
+    class tglImageGenerator;
 
 
 
@@ -100,6 +101,7 @@ namespace TGL
     {
         Bits
        ,Bitmap
+       ,Generator
     };
 
     enum class ImageCompression
@@ -120,8 +122,9 @@ namespace TGL
     std::map<const TGL::VideoMode, const std::string>
         modeName =
     {
-        { TGL::VideoMode::Bits,   "Bits"   }
-       ,{ TGL::VideoMode::Bitmap, "Bitmap" }
+        { TGL::VideoMode::Bits,      "Bits"      }
+       ,{ TGL::VideoMode::Bitmap,    "Bitmap"    }
+       ,{ TGL::VideoMode::Generator, "Generator" }
     };
 
     HINSTANCE
@@ -141,6 +144,10 @@ namespace TGL
 
     constexpr uint16_t
         bitCount = 32;
+
+    constexpr uint8_t
+        bitmap = 0,
+        animation = 1;
 
     // TGL variables
 
@@ -196,6 +203,7 @@ namespace TGL
 #include "tglObject.h"
 #include "tglWindow.h"
 #include "tglBitmap.h"
+#include "tglImageGenerator.h"
 #include "tglVideo.h"
 #include "TGL Functions.h"
 
@@ -206,10 +214,11 @@ namespace TGL
     std::map<const std::string, const std::string>
         className =
     {
-        { typeid(TGL::tglObject).name(), "tglObject" }
-       ,{ typeid(TGL::tglWindow).name(), "tglWindow" }
-       ,{ typeid(TGL::tglVideo ).name(), "tglVideo"  }
-       ,{ typeid(TGL::tglBitmap).name(), "tglBitmap" }
+        { typeid(TGL::tglObject        ).name(), "tglObject"         }
+       ,{ typeid(TGL::tglWindow        ).name(), "tglWindow"         }
+       ,{ typeid(TGL::tglVideo         ).name(), "tglVideo"          }
+       ,{ typeid(TGL::tglBitmap        ).name(), "tglBitmap"         }
+       ,{ typeid(TGL::tglImageGenerator).name(), "tglImageGenerator" }
     };
 }
 

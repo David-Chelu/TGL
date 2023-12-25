@@ -16,6 +16,9 @@ union source_t
 
     const TGL::tglBitmap
         *bitmap;
+
+    const TGL::tglImageGenerator
+        *generator;
 };
 
 struct destination_t
@@ -44,6 +47,8 @@ public:
        ,&Assign(const void *image)
        ,&Assign(const TGL::tglBitmap *bitmap)
        ,&Assign(const TGL::tglBitmap &bitmap)
+       ,&Assign(const TGL::tglImageGenerator *generator)
+       ,&Assign(const TGL::tglImageGenerator &generator)
        ;
 
 
@@ -54,6 +59,8 @@ public:
        ,&operator =(const void *image)
        ,&operator =(const TGL::tglBitmap *bitmap)
        ,&operator =(const TGL::tglBitmap &bitmap)
+       ,&operator =(const TGL::tglImageGenerator *generator)
+       ,&operator =(const TGL::tglImageGenerator &generator)
        ;
 
 
@@ -95,6 +102,8 @@ public:
                 uint16_t bitCount = TGL::bitCount)
        ,Display(const TGL::tglBitmap *bitmap)
        ,Display(const TGL::tglBitmap &bitmap)
+       ,Display(const TGL::tglImageGenerator *generator)
+       ,Display(const TGL::tglImageGenerator &generator)
        ,Display()
        ;
 
@@ -128,8 +137,10 @@ private:
         Initialize();
 
     bool
-        DisplayBits(),
-        DisplayBitmap();
+        DisplayBits()
+       ,DisplayBitmap()
+       ,DisplayGenerator()
+       ;
 
     inline std::string
         GetSourceValues() const;
@@ -209,6 +220,16 @@ TGL::tglVideo &TGL::tglVideo::Assign(const TGL::tglBitmap &bitmap)
     return (*this) = bitmap;
 }
 
+TGL::tglVideo &TGL::tglVideo::Assign(const TGL::tglImageGenerator *generator)
+{
+    return (*this) = generator;
+}
+
+TGL::tglVideo &TGL::tglVideo::Assign(const TGL::tglImageGenerator &generator)
+{
+    return (*this) = generator;
+}
+
 
 
 TGL::tglVideo &TGL::tglVideo::operator =(HWND newHandle)
@@ -264,6 +285,21 @@ TGL::tglVideo &TGL::tglVideo::operator =(const TGL::tglBitmap *bitmap)
 TGL::tglVideo &TGL::tglVideo::operator =(const TGL::tglBitmap &bitmap)
 {
     return (*this) = &bitmap;
+}
+
+TGL::tglVideo &TGL::tglVideo::operator =(const TGL::tglImageGenerator *generator)
+{
+    if (TGL::VideoMode::Generator == this->m_mode)
+    {
+        this->m_source.generator = generator;
+    }
+
+    return *this;
+}
+
+TGL::tglVideo &TGL::tglVideo::operator =(const TGL::tglImageGenerator &generator)
+{
+    return (*this) = &generator;
 }
 
 
@@ -468,6 +504,16 @@ bool TGL::tglVideo::Display(const TGL::tglBitmap &bitmap)
     return this->Display(&bitmap);
 }
 
+bool TGL::tglVideo::Display(const TGL::tglImageGenerator *generator)
+{
+    return this->Display(generator->GetBitmap());
+}
+
+bool TGL::tglVideo::Display(const TGL::tglImageGenerator &generator)
+{
+    return this->Display(&generator);
+}
+
 bool TGL::tglVideo::Display()
 {
     switch (this->m_mode)
@@ -480,6 +526,11 @@ bool TGL::tglVideo::Display()
         case TGL::VideoMode::Bitmap:
         {
             return this->DisplayBitmap();
+        }
+
+        case TGL::VideoMode::Generator:
+        {
+            return this->DisplayGenerator();
         }
 
         default:
@@ -595,6 +646,11 @@ bool TGL::tglVideo::DisplayBitmap()
                      ,&this->m_info
                      ,DIB_RGB_COLORS)
                      ;
+}
+
+bool TGL::tglVideo::DisplayGenerator()
+{
+    return this->Display(this->m_source.generator);
 }
 
 std::string TGL::tglVideo::GetSourceValues() const
