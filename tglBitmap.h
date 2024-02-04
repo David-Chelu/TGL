@@ -35,9 +35,6 @@ struct ColorWithSize_t
 
 
 // TODO:
-//    Stretch - this will have divide and multiply variants, and will compress or expand the image's pixels (as opposed to cropping)
-//        Multiply variants
-//        Divide variants
 //    Flip / Swap(color1, color2)
 //    Invert(colors) (using |)
 //    Normalize(colors, low, high) // low and high are the lowest and highest points for the colors. They will be proportionally reduced to this interval.
@@ -100,6 +97,12 @@ public:
        ,Stretch(largeuint_t xResize, largeuint_t yResize)
        ,StretchX(largeuint_t xResize)
        ,StretchY(largeuint_t yResize)
+       ,StretchDiv(largeuint_t xDivisor, largeuint_t yDivisor)
+       ,StretchDivX(largeuint_t xDivisor)
+       ,StretchDivY(largeuint_t yDivisor)
+       ,StretchMul(largeuint_t xMultiplier, largeuint_t yMultiplier)
+       ,StretchMulX(largeuint_t xMultiplier)
+       ,StretchMulY(largeuint_t yMultiplier)
        ;
 
     static bool
@@ -442,6 +445,36 @@ bool TGL::tglBitmap::StretchY(largeuint_t yResize)
     }
 
     return false;
+}
+
+bool TGL::tglBitmap::StretchDiv(largeuint_t xDivisor, largeuint_t yDivisor)
+{
+    return StretchDivX(xDivisor) && StretchDivY(yDivisor);
+}
+
+bool TGL::tglBitmap::StretchDivX(largeuint_t xDivisor)
+{
+    return (xDivisor > 0? StretchX(current.width / xDivisor) : false);
+}
+
+bool TGL::tglBitmap::StretchDivY(largeuint_t yDivisor)
+{
+    return (yDivisor > 0? StretchY(current.height / yDivisor) : false);
+}
+
+bool TGL::tglBitmap::StretchMul(largeuint_t xMultiplier, largeuint_t yMultiplier)
+{
+    return StretchMulX(xMultiplier) && StretchMulY(yMultiplier);
+}
+
+bool TGL::tglBitmap::StretchMulX(largeuint_t xMultiplier)
+{
+    return StretchX(current.width * xMultiplier);
+}
+
+bool TGL::tglBitmap::StretchMulY(largeuint_t yMultiplier)
+{
+    return StretchY(current.height * yMultiplier);
 }
 
 bool TGL::tglBitmap::Exists(const std::string &file)
