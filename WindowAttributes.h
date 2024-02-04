@@ -37,6 +37,11 @@ struct TGL::WindowAttributes
     void
         Initialize();
 
+    bool
+        ResizeToWorkRect(),
+        SnapToWorkRect(),
+        SetToWorkRect();
+
 
 
     std::string
@@ -75,6 +80,9 @@ struct TGL::WindowAttributes
 
     COLORREF
         background;
+
+    static RECT
+        workRect;
 };
 
 
@@ -189,6 +197,45 @@ void TGL::WindowAttributes::Initialize()
     this->callback = TGL::tglCallback;
 
     this->background = BLACK_BRUSH;
+}
+
+bool TGL::WindowAttributes::ResizeToWorkRect()
+{
+    bool
+        result;
+
+    result = SystemParametersInfo(SPI_GETWORKAREA,
+                                  0,
+                                  &workRect,
+                                  0);
+    {
+        width  = workRect.right - workRect.left;
+        height = workRect.bottom - workRect.top;
+    }
+
+    return result;
+}
+
+bool TGL::WindowAttributes::SnapToWorkRect()
+{
+    bool
+        result;
+
+    result = SystemParametersInfo(SPI_GETWORKAREA,
+                                  0,
+                                  &workRect,
+                                  0);
+    {
+        xPosition = workRect.left;
+        yPosition = workRect.top;
+    }
+
+    return result;
+}
+
+bool TGL::WindowAttributes::SetToWorkRect()
+{
+    return ResizeToWorkRect() && SnapToWorkRect();
 }
 
 

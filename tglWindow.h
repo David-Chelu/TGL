@@ -42,6 +42,9 @@ public:
        ,FillScreen()
        ,Center()
        ,Decenter()
+       ,ResizeToWorkRect()
+       ,SnapToWorkRect()
+       ,SetToWorkRect()
        ;
 
     HWND
@@ -234,6 +237,21 @@ bool TGL::tglWindow::Decenter()
     }
 
     return !this->m_centered;
+}
+
+bool TGL::tglWindow::ResizeToWorkRect()
+{
+    return planned.ResizeToWorkRect();
+}
+
+bool TGL::tglWindow::SnapToWorkRect()
+{
+    return planned.SnapToWorkRect();
+}
+
+bool TGL::tglWindow::SetToWorkRect()
+{
+    return ResizeToWorkRect() && SnapToWorkRect();
 }
 
 HWND TGL::tglWindow::Create()

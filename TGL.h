@@ -257,6 +257,8 @@ namespace TGL
        ,{ typeid(TGL::tglBitmap        ).name(), "tglBitmap"         }
        ,{ typeid(TGL::tglImageGenerator).name(), "tglImageGenerator" }
     };
+
+    RECT TGL::WindowAttributes::workRect;
 }
 
 
