@@ -36,6 +36,8 @@ struct ColorWithSize_t
 
 // TODO:
 //    Stretch - this will have divide and multiply variants, and will compress or expand the image's pixels (as opposed to cropping)
+//        Multiply variants
+//        Divide variants
 //    Flip / Swap(color1, color2)
 //    Invert(colors) (using |)
 //    Normalize(colors, low, high) // low and high are the lowest and highest points for the colors. They will be proportionally reduced to this interval.
@@ -95,6 +97,9 @@ public:
        ,Center()
        ,Decenter()
        ,Exists()
+       ,Stretch(largeuint_t xResize, largeuint_t yResize)
+       ,StretchX(largeuint_t xResize)
+       ,StretchY(largeuint_t yResize)
        ;
 
     static bool
@@ -354,6 +359,89 @@ bool TGL::tglBitmap::Decenter()
 bool TGL::tglBitmap::Exists()
 {
     return Exists(this->m_directory);
+}
+
+bool TGL::tglBitmap::Stretch(largeuint_t xResize, largeuint_t yResize)
+{
+    return StretchX(xResize) && StretchY(yResize);
+}
+
+bool TGL::tglBitmap::StretchX(largeuint_t xResize)
+{
+    if (m_image)
+    {
+        if (current.width != xResize)
+        {
+            COLORREF
+                *backup;
+
+            largeuint_t
+                priorWidth;
+
+            backup = m_image;
+            m_image = NULL;
+            priorWidth = current.width;
+
+            planned.width  = xResize;
+            planned.height = current.height;
+
+            if (Allocate())
+            {
+                for (largeuint_t column = 0; column < xResize; ++column)
+                {
+                    TGL::StepCopy<COLORREF>(m_image + column,
+                                            backup  + column * priorWidth / xResize,
+                                            current.height,
+                                            current.width,
+                                            priorWidth);
+                }
+            }
+
+            delete []backup;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool TGL::tglBitmap::StretchY(largeuint_t yResize)
+{
+    if (m_image)
+    {
+        if (current.height != yResize)
+        {
+            COLORREF
+                *backup;
+
+            largeuint_t
+                priorHeight;
+
+            backup = m_image;
+            m_image = NULL;
+            priorHeight = current.height;
+
+            planned.width  = current.width;
+            planned.height = yResize;
+
+            if (Allocate())
+            {
+                for (largeuint_t line = 0; line < yResize; ++line)
+                {
+                    TGL::StepCopy<COLORREF>(m_image + current.width * line,
+                                            backup  + current.width * (line * priorHeight / yResize),
+                                            current.width);
+                }
+            }
+
+            delete []backup;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 bool TGL::tglBitmap::Exists(const std::string &file)

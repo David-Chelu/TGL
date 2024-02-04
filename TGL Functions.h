@@ -228,6 +228,172 @@ int TGL::Message(const std::string &title, const std::string &description)
     return MessageBox(NULL, description.c_str(), title.c_str(), MB_OK);
 }
 
+Templated void *TGL::Copy(void *destination, void *source, largeuint_t count)
+{
+    if (destination)
+    {
+        DataType
+            *destination_{(DataType*)destination}
+           ,*source_     {(DataType*)source     }
+           ;
+
+        for (largeuint_t index = 0; index < count; ++index)
+        {
+            destination_[index] = source_[index];
+        }
+    }
+
+    return destination;
+}
+
+Templated void *TGL::Set(void *destination, DataType value, largeuint_t count)
+{
+    if (destination)
+    {
+        DataType
+            *destination_{(DataType*)destination};
+
+        for (largeuint_t index = 0; index < count; ++index)
+        {
+            destination_[index] = value;
+        }
+    }
+
+    return destination;
+}
+
+void TGL::StepCopyX(void *destination
+                   ,void *source
+                   ,largeuint_t size
+                   ,largeuint_t repeat
+                   ,largeint_t  skipDestination
+                   ,largeint_t  skipSource
+                   ,largeint_t  variationDestination
+                   ,largeint_t  variationSource
+                   )
+{
+    uint8_t
+        *destination_{static_cast<uint8_t*>(destination)}
+       ,*source_     {static_cast<uint8_t*>(source)     }
+       ;
+
+    largeuint_t
+        offsetDestination,
+        offsetSource;
+
+
+
+    offsetDestination =
+    offsetSource = 0;
+
+    for (largeuint_t iteration = 0; iteration < repeat; ++iteration)
+    {
+        for (largeuint_t byte = 0; byte < size; ++byte)
+        {
+            destination_[offsetDestination + byte] =
+            source_     [offsetSource      + byte];
+        }
+
+        offsetDestination += (skipDestination * size);
+        offsetSource      += (skipSource      * size);
+
+        skipDestination += variationDestination;
+        skipSource      += variationSource;
+    }
+}
+
+void TGL::StepSetX(void *destination
+                  ,int value
+                  ,largeuint_t size
+                  ,largeuint_t repeat
+                  ,largeint_t  skip
+                  ,largeint_t  variation
+                  )
+{
+    uint8_t
+        *destination_{static_cast<uint8_t*>(destination)};
+
+    largeuint_t
+        offset;
+
+
+
+    offset = 0;
+
+    for (largeuint_t iteration = 0; iteration < repeat; ++iteration)
+    {
+        for (largeuint_t byte = 0; byte < size; ++byte)
+        {
+            destination_[offset + byte] = value;
+        }
+
+        offset += (skip * size);
+        skip   += variation;
+    }
+}
+
+Templated void TGL::StepCopy(void *destination
+                            ,void *source
+                            ,largeuint_t repeat
+                            ,largeint_t  skipDestination
+                            ,largeint_t  skipSource
+                            ,largeint_t  variationDestination
+                            ,largeint_t  variationSource
+                            )
+{
+    DataType
+        *destination_{static_cast<DataType*>(destination)}
+       ,*source_     {static_cast<DataType*>(source)     }
+       ;
+
+    largeuint_t
+        offsetDestination,
+        offsetSource;
+
+
+
+    offsetDestination =
+    offsetSource = 0;
+
+    for (largeuint_t iteration = 0; iteration < repeat; ++iteration)
+    {
+        destination_[offsetDestination] =
+        source_     [offsetSource];
+
+        offsetDestination += skipDestination;
+        offsetSource      += skipSource;
+
+        skipDestination += variationDestination;
+        skipSource      += variationSource;
+    }
+}
+
+Templated void TGL::StepSet(void *destination
+                           ,int value
+                           ,largeuint_t repeat
+                           ,largeint_t  skip
+                           ,largeint_t  variation
+                           )
+{
+    DataType
+        *destination_{static_cast<DataType*>(destination)};
+
+    largeuint_t
+        offset;
+
+
+
+    offset = 0;
+
+    for (largeuint_t iteration = 0; iteration < repeat; ++iteration)
+    {
+        destination_[offset] = value;
+
+        offset += skip;
+        skip   += variation;
+    }
+}
+
 
 
 namespace TGL

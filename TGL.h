@@ -195,6 +195,43 @@ namespace TGL
         yScreen(),
         Message(const std::string &title, const std::string &description);
 
+    Templated void *Copy(void *destination, void   *source, largeuint_t count);
+    Templated void *Set (void *destination, DataType value, largeuint_t count);
+
+    void
+        StepCopyX(void *destination
+                 ,void *source
+                 ,largeuint_t size
+                 ,largeuint_t repeat
+                 ,largeint_t  skipDestination = 1
+                 ,largeint_t  skipSource = 1
+                 ,largeint_t  variationDestination = 0
+                 ,largeint_t  variationSource = 0
+                 )
+       ,StepSetX(void *destination
+                ,int value
+                ,largeuint_t size
+                ,largeuint_t repeat
+                ,largeint_t  skip = 1
+                ,largeint_t  variation = 0
+                )
+       ;
+
+    Templated void StepCopy(void *destination
+                           ,void *source
+                           ,largeuint_t repeat
+                           ,largeint_t  skipDestination = 1
+                           ,largeint_t  skipSource = 1
+                           ,largeint_t  variationDestination = 0
+                           ,largeint_t  variationSource = 0
+                           );
+    Templated void StepSet(void *destination
+                          ,int value
+                          ,largeuint_t repeat
+                          ,largeint_t  skip = 1
+                          ,largeint_t  variation = 0
+                          );
+
     // TGL functions
 }
 
