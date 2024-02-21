@@ -93,32 +93,32 @@ TGL::WindowAttributes::WindowAttributes()
 }
 
 TGL::WindowAttributes::WindowAttributes(const std::string &className
-                           ,const std::string &windowName
-                           ,DWORD style
-                           ,largeint_t xPosition
-                           ,largeint_t yPosition
-                           ,largeuint_t width
-                           ,largeuint_t height
-                           ,HWND parent
-                           ,HMENU menu
-                           ,HINSTANCE instance
-                           ,const LPVOID lpParam
-                           ,WNDPROC callback
-                           ,COLORREF background)
-                           :
-                            className (className )
-                           ,windowName(windowName)
-                           ,style     (style     )
-                           ,xPosition (xPosition )
-                           ,yPosition (yPosition )
-                           ,width     (width     )
-                           ,height    (height    )
-                           ,parent    (parent    )
-                           ,menu      (menu      )
-                           ,instance  (instance  )
-                           ,lpParam   (lpParam   )
-                           ,callback  (callback  )
-                           ,background(background)
+                                       ,const std::string &windowName
+                                       ,DWORD style
+                                       ,largeint_t xPosition
+                                       ,largeint_t yPosition
+                                       ,largeuint_t width
+                                       ,largeuint_t height
+                                       ,HWND parent
+                                       ,HMENU menu
+                                       ,HINSTANCE instance
+                                       ,const LPVOID lpParam
+                                       ,WNDPROC callback
+                                       ,COLORREF background)
+                                       :
+                                        className (className )
+                                       ,windowName(windowName)
+                                       ,style     (style     )
+                                       ,xPosition (xPosition )
+                                       ,yPosition (yPosition )
+                                       ,width     (width     )
+                                       ,height    (height    )
+                                       ,parent    (parent    )
+                                       ,menu      (menu      )
+                                       ,instance  (instance  )
+                                       ,lpParam   (lpParam   )
+                                       ,callback  (callback  )
+                                       ,background(background)
 {
 }
 
@@ -209,7 +209,7 @@ bool TGL::WindowAttributes::ResizeToWorkRect()
                                   &workRect,
                                   0);
     {
-        width  = workRect.right - workRect.left;
+        width  = workRect.right  - workRect.left;
         height = workRect.bottom - workRect.top;
     }
 

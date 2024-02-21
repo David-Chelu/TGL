@@ -107,6 +107,9 @@ public:
        ,Display()
        ;
 
+    inline HDC
+        RequestHDC();
+
 
 
     const HWND
@@ -538,6 +541,11 @@ bool TGL::tglVideo::Display()
             return false;
         }
     }
+}
+
+HDC TGL::tglVideo::RequestHDC()
+{
+    return m_hdc;
 }
 
 

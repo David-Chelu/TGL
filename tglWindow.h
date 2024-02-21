@@ -51,6 +51,9 @@ public:
         Create(),
         Create(const TGL::WindowAttributes &attributes);
 
+    inline HWND
+        RequestHWND();
+
     inline void
         DisplayValues() const;
 
@@ -76,6 +79,10 @@ public:
     TGL::WindowAttributes
         &planned;
 
+    largeuint_t
+        xClient() const,
+        yClient() const;
+
 private:
 
     void
@@ -92,6 +99,9 @@ private:
 
     bool
         m_centered;
+
+    RECT
+        m_clientRect;
 
 };
 
@@ -304,6 +314,11 @@ HWND TGL::tglWindow::Create(const TGL::WindowAttributes &attributes)
     return this->m_handle;
 }
 
+HWND TGL::tglWindow::RequestHWND()
+{
+    return m_handle;
+}
+
 void TGL::tglWindow::DisplayValues() const
 {
     std::cout << this->GetValues() + "\n\n\n\n";
@@ -340,6 +355,20 @@ std::string TGL::tglWindow::GetValues() const
 const HWND TGL::tglWindow::handle() const
 {
     return this->m_handle;
+}
+
+largeuint_t TGL::tglWindow::xClient() const
+{
+    GetClientRect(m_handle, (LPRECT)&m_clientRect);
+
+    return m_clientRect.right - m_clientRect.left;
+}
+
+largeuint_t TGL::tglWindow::yClient() const
+{
+    GetClientRect(m_handle, (LPRECT)&m_clientRect);
+
+    return m_clientRect.bottom - m_clientRect.top;
 }
 
 
