@@ -447,10 +447,10 @@ bool TGL::tglVideo::Lock()
 {
     if (!this->m_locked && !this->m_hdc && (this->m_hdc = GetDC(this->m_handle)))
     {
-        return (this->m_locked = true);
+        this->m_locked = true;
     }
 
-    return (this->m_locked = false);
+    return this->m_locked;
 }
 
 bool TGL::tglVideo::Unlock()
@@ -459,10 +459,10 @@ bool TGL::tglVideo::Unlock()
     {
         this->m_hdc = NULL;
 
-        return (this->m_locked = false);
+        this->m_locked = false;
     }
 
-    return (this->m_locked = true);
+    return this->m_locked;
 }
 
 bool TGL::tglVideo::Display(const void *image,
