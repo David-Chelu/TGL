@@ -121,6 +121,7 @@ public:
 
     largeuint_t
         Fill(COLORREF color)
+       ,Fill(COLORREF color, largeuint_t x1, largeuint_t y1, largeuint_t x2 = -1, largeuint_t y2 = -1)
        ,Replace(COLORREF target, COLORREF color)
        ,Filter(uint8_t colors)
        ,Keep(uint8_t colors)
@@ -182,16 +183,22 @@ public:
     std::string
         &directory;
 
+
+
+protected:
+
+    TGL::ImageAttributes
+        m_current,
+        m_planned;
+
+
+
 private:
 
     void
         Initialize();
 
 
-
-    TGL::ImageAttributes
-        m_current,
-        m_planned;
 
     COLORREF
         *m_image,
@@ -615,14 +622,40 @@ std::string TGL::tglBitmap::GetValues() const
 
 largeuint_t TGL::tglBitmap::Fill(COLORREF color)
 {
+    return Fill(color, 0, 0);
+}
+
+largeuint_t TGL::tglBitmap::Fill(COLORREF color, largeuint_t x1, largeuint_t y1, largeuint_t x2, largeuint_t y2)
+{
     if (this->m_image)
     {
-        for (largeuint_t pixel = 0; pixel < this->m_size; ++pixel)
+        static
+            largeuint_t
+                x,
+                y,
+                filledPixels;
+
+        filledPixels = 0;
+
+        if (x1 > x2) std::swap(x1, x2);
+        if (y1 > y2) std::swap(y1, y2);
+
+        y1 = TGL::Max<decltype(y1)>(0, TGL::Min<decltype(y1)>(y1, m_current.height));
+        x1 = TGL::Max<decltype(x1)>(0, TGL::Min<decltype(x1)>(x1, m_current.width));
+        y2 = TGL::Max<decltype(y2)>(0, TGL::Min<decltype(y2)>(y2, m_current.height));
+        x2 = TGL::Max<decltype(x2)>(0, TGL::Min<decltype(x2)>(x2, m_current.width));
+
+        for (y = y1; y < y2; ++y)
         {
-            this->m_image[pixel] = color;
+            operator ()(y);
+
+            for (x = x1; x < x2; ++x)
+            {
+                operator [](x) = color;
+            }
         }
 
-        return this->m_size;
+        return filledPixels;
     }
 
     return 0;
