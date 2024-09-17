@@ -1,5 +1,5 @@
-#ifndef TGL_FUNCTIONS_H
-    #define TGL_FUNCTIONS_H
+#ifndef TGL_FUNCTIONS_CPP
+    #define TGL_FUNCTIONS_CPP
 
 
 
@@ -423,7 +423,7 @@ void TGL::Clear()
 
 
 
-#endif // TGL_FUNCTIONS_H
+#endif // TGL_FUNCTIONS_CPP
 
 
 

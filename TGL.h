@@ -244,7 +244,7 @@ namespace TGL
 #include "tglImageGenerator.h"
 #include "tglVideo.h"
 
-#include "TGL Functions.h"
+#include "TGL.cpp"
 
 #include "tglObject.cpp"
 #include "tglWindow.cpp"
