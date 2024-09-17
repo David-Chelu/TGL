@@ -236,14 +236,21 @@ namespace TGL
     // TGL functions
 }
 
-
+// TODO: separate class definition and method definition into 2 headers
 
 #include "tglObject.h"
 #include "tglWindow.h"
 #include "tglBitmap.h"
 #include "tglImageGenerator.h"
 #include "tglVideo.h"
+
 #include "TGL Functions.h"
+
+#include "tglObject.cpp"
+#include "tglWindow.cpp"
+#include "tglBitmap.cpp"
+#include "tglImageGenerator.cpp"
+#include "tglVideo.cpp"
 
 
 
