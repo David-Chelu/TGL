@@ -37,6 +37,8 @@ protected:
     largeuint_t
         m_ID;
 
+    // TODO: add a member string for object name. By default it'll be class name + class ID
+
 private:
 
     void

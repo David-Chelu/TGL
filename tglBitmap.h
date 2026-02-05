@@ -36,7 +36,6 @@ struct ColorWithSize_t
 
 // TODO:
 //    Flip / Swap(color1, color2)
-//    Invert(colors) (using |)
 //    Normalize(colors, low, high) // low and high are the lowest and highest points for the colors. They will be proportionally reduced to this interval.
 //    Amplify(colors, pivot, power) // pivot is the starting point, power means the amount by which to turn up/down each color. Low power means not much amplifying, high power means colors reach the extremities
 //    Contrast(colors) // calls Amplify(colors, 0x7F, 0x7F)
@@ -116,8 +115,15 @@ public:
        ,Clear()
        ;
 
+    inline COLORREF
+        color() const;
+
     inline std::string
         GetValues() const;
+
+    // TODO: add a Modify/Alter method to edit all pixels based on lambda parameter
+
+    // TODO: add Sample method, which will create data ready to be plotted on a graph, showing R, G, B, and A values for a given area. Intended to be used for scatter with straight lines graph, to see thresholds and such. Parameters are planned to be (x1, y1), (x2, y2)
 
     largeuint_t
         Fill(COLORREF color)
@@ -125,6 +131,7 @@ public:
        ,Replace(COLORREF target, COLORREF color)
        ,Filter(uint8_t colors)
        ,Keep(uint8_t colors)
+       ,Invert(uint8_t colors = RED | GREEN | BLUE | ALPHA)
        ,Load()
        ,Load(const std::string &file)
        ,Load(const char *file)
@@ -148,7 +155,9 @@ public:
        ,&operator  =(const TGL::tglBitmap &source)
        ,&operator  =(const std::string &newDirectory)
        ,&operator ()(largeuint_t line)
+       ,&operator ()(TGL::Position line)
        ,&operator [](largeuint_t column)
+       ,&operator [](TGL::Position column)
        ;
 
     operator bool() const;

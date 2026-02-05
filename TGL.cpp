@@ -228,6 +228,52 @@ int TGL::Message(const std::string &title, const std::string &description)
     return MessageBox(NULL, description.c_str(), title.c_str(), MB_OK);
 }
 
+std::map<int, unsigned> TGL::ExtractPrimeDivisors(int number)
+{
+    std::map<int, unsigned>
+        result;
+
+
+
+    switch (number)
+    {
+        case 0:
+            break;
+
+        case 1:
+        case -1:
+            result[1] = 0;
+            break;
+
+        default:
+            while (!(number % 2))
+            {
+                ++result[2];
+                number /= 2;
+            }
+
+            for (int d = 3; d * d <= number; ++d)
+            {
+                while (!(number % d))
+                {
+                    ++result[d];
+                    number /= d;
+                }
+            }
+
+            if (number > 1 || number < -1)
+            {
+                result[TGL::Abs(number)] = 1;
+            }
+
+            break;
+    }
+
+
+
+    return result;
+}
+
 Templated void *TGL::Copy(void *destination, void *source, largeuint_t count)
 {
     if (destination)

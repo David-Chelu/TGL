@@ -61,6 +61,8 @@ TGL::tglBitmap &TGL::tglBitmap::Assign(const std::string &newDirectory)
 
 TGL::tglBitmap &TGL::tglBitmap::Copy(const TGL::tglBitmap &source)
 {
+    // TODO: add if to check for difference in size
+
     this->Reset();
 
     this->m_planned = source.m_current;
@@ -86,6 +88,8 @@ TGL::tglBitmap &TGL::tglBitmap::Copy(const TGL::tglBitmap &source)
 
 bool TGL::tglBitmap::Allocate()
 {
+    // TODO: check if planned size is the same as current
+
     if (this->m_planned.width && this->m_planned.height)
     {
         this->Deallocate();
@@ -387,6 +391,16 @@ void TGL::tglBitmap::Clear()
     this->Deallocate();
 }
 
+COLORREF TGL::tglBitmap::color() const
+{
+    if (selectedLine)
+    {
+        return selectedLine[selectedColumn];
+    }
+
+    return 0;
+}
+
 std::string TGL::tglBitmap::GetValues() const
 {
     return this->TGL::tglObject::GetValues()
@@ -478,15 +492,42 @@ largeuint_t TGL::tglBitmap::Keep(uint8_t colors)
         COLORREF
             mask;
 
-        mask = TGL::Pixel((colors & RED)   * 0xFF
-                         ,(colors & GREEN) * 0xFF
-                         ,(colors & BLUE)  * 0xFF
-                         ,(colors & ALPHA) * 0xFF
+        mask = TGL::Pixel(((colors & RED)   * 0xFF) >> 2
+                         ,((colors & GREEN) * 0xFF) >> 1
+                         ,((colors & BLUE)  * 0xFF) >> 0
+                         ,((colors & ALPHA) * 0xFF) >> 3
                           );
 
         for (largeuint_t pixel = 0; pixel < this->m_size; ++pixel)
         {
             this->m_image[pixel] &= mask;
+        }
+
+        return this->m_size;
+    }
+
+    return 0;
+}
+
+largeuint_t TGL::tglBitmap::Invert(uint8_t colors)
+{
+    if (this->m_image)
+    {
+        COLORREF
+            rMask{COLORREF((colors & RED)   * 0xFF) >> 2},
+            gMask{COLORREF((colors & GREEN) * 0xFF) >> 1},
+            bMask{COLORREF((colors & BLUE)  * 0xFF) >> 0},
+            aMask{COLORREF((colors & ALPHA) * 0xFF) >> 3};
+
+        for (largeuint_t pixel = 0; pixel < this->m_size; ++pixel)
+        {
+            COLORREF
+                &current = this->m_image[pixel];
+
+            current = TGL::Pixel((rMask? rMask - TGL::Red  (current) : TGL::Red  (current))
+                                ,(gMask? gMask - TGL::Green(current) : TGL::Green(current))
+                                ,(bMask? bMask - TGL::Blue (current) : TGL::Blue (current))
+                                ,(aMask? aMask - TGL::Alpha(current) : TGL::Alpha(current)));
         }
 
         return this->m_size;
@@ -692,6 +733,8 @@ largeuint_t TGL::tglBitmap::LoadTBM(const char *file)
 
     opener.read((char*)&header, sizeof(header));
 
+    // TODO: adapt to only using Allocate
+
     this->Deallocate();
     this->m_planned.bitCount = header.bitCount;
     this->m_planned.width    = header.width;
@@ -749,12 +792,12 @@ largeuint_t TGL::tglBitmap::LoadTBM(const char *file)
 
 largeuint_t TGL::tglBitmap::SaveTBM(const TGL::ImageCompression compression)
 {
-    return this->SaveTBM(this->m_directory);
+    return this->SaveTBM(this->m_directory, compression);
 }
 
 largeuint_t TGL::tglBitmap::SaveTBM(const std::string &file, const TGL::ImageCompression compression)
 {
-    return this->SaveTBM(file.c_str());
+    return this->SaveTBM(file.c_str(), compression);
 }
 
 largeuint_t TGL::tglBitmap::SaveTBM(const char *file, const TGL::ImageCompression compression)
@@ -917,6 +960,29 @@ TGL::tglBitmap &TGL::tglBitmap::operator =(const std::string &newDirectory)
 
 TGL::tglBitmap &TGL::tglBitmap::operator ()(largeuint_t line)
 {
+    switch (line)
+    {
+        case BEGIN:
+        {
+            line = 0;
+
+            break;
+        }
+        case END:
+        {
+            line = current.height - 1;
+
+            break;
+        }
+        case MIDDLE:
+        {
+            line = current.height / 2;
+
+            break;
+        }
+        default:;
+    }
+
     if (this->m_image && line < this->m_current.height)
     {
         this->m_selectedLine = this->m_image + (this->m_current.height - line - 1) * this->m_current.width;
@@ -927,6 +993,29 @@ TGL::tglBitmap &TGL::tglBitmap::operator ()(largeuint_t line)
 
 TGL::tglBitmap &TGL::tglBitmap::operator [](largeuint_t column)
 {
+    switch (column)
+    {
+        case BEGIN:
+        {
+            column = 0;
+
+            break;
+        }
+        case END:
+        {
+            column = current.width - 1;
+
+            break;
+        }
+        case MIDDLE:
+        {
+            column = current.width / 2;
+
+            break;
+        }
+        default:;
+    }
+
     if (this->m_image && column < this->m_current.width)
     {
         this->m_selectedColumn = column;

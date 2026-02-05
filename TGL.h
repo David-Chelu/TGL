@@ -3,7 +3,7 @@
 
 
 
-#if _WIN32_WINNT<0x0500
+#if _WIN32_WINNT < 0x0500
     #define _WIN32_WINNT 0x0500
 #endif // _WIN32_WINNT
 
@@ -60,6 +60,13 @@ else
 #define StartTGL() { TGL::Initialize()
 #define EndTGL() } TGL::Clear()
 
+#define ParseRange(a, b, c, d) for (a = b; a < c; d)
+#define ParseRangeX() for (xPixel = xStart; xPixel < xStop; ++xPixel)
+#define ParseRangeY() for (yPixel = yStart; yPixel < yStop; ++yPixel)
+
+#define PrintCoordinatesXY(index, x1, y1, x2, y2) std::cout << "\n" << index << ": (" << x1 << ", " << y1 << "); (" << x2 << ", " << y2 << ')'
+
+
 
 #define Templated template<typename DataType>
 
@@ -109,6 +116,11 @@ namespace TGL
     {
         None
        ,Count
+    };
+
+    enum class Position
+    {
+        Middle
     };
 
     // TGL enums
@@ -195,6 +207,9 @@ namespace TGL
         xScreen(),
         yScreen(),
         Message(const std::string &title, const std::string &description);
+
+    std::map<int, unsigned>
+        ExtractPrimeDivisors(int number);
 
     Templated void *Copy(void *destination, void   *source, largeuint_t count);
     Templated void *Set (void *destination, DataType value, largeuint_t count);

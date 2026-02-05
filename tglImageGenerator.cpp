@@ -16,23 +16,41 @@ void TGL::tglImageGenerator::DrawPattern()
     DrawPattern(image_);
 }
 
-void TGL::tglImageGenerator::GetRectangle(largeint_t &x1
+void TGL::tglImageGenerator::GetRectangle(const TGL::tglBitmap &destination
+                                         ,largeint_t &x1
                                          ,largeint_t &y1
                                          ,largeint_t &x2
                                          ,largeint_t &y2
                                          ,const TGL::tglBitmap &bitmap
+                                         ,bool relative
                                          ) const
 {
     if (bitmap.centered)
     {
-        x2 = (x1 = (image_.current.width  - bitmap.current.width)  / 2) + bitmap.current.width;
-        y2 = (y1 = (image_.current.height - bitmap.current.height) / 2) + bitmap.current.height;
+        x2 = (x1 = (largeint_t(destination.current.width ) - largeint_t(bitmap.current.width )) / 2) + bitmap.current.width;
+        y2 = (y1 = (largeint_t(destination.current.height) - largeint_t(bitmap.current.height)) / 2) + bitmap.current.height;
     }
     else
     {
         x2 = (x1 = bitmap.xPosition) + bitmap.current.width;
         y2 = (y1 = bitmap.yPosition) + bitmap.current.height;
     }
+
+    if (x1 < destination.xPosition) x1 = destination.xPosition;
+    if (y1 < destination.xPosition) y1 = destination.xPosition;
+    if (x2 > largeint_t(destination.xPosition + destination.current.width )) x2 = destination.xPosition + destination.current.width;
+    if (y2 > largeint_t(destination.yPosition + destination.current.height)) y2 = destination.yPosition + destination.current.height;
+}
+
+void TGL::tglImageGenerator::GetRectangle(largeint_t &x1
+                                         ,largeint_t &y1
+                                         ,largeint_t &x2
+                                         ,largeint_t &y2
+                                         ,const TGL::tglBitmap &bitmap
+                                         ,bool relative
+                                         ) const
+{
+    GetRectangle(image_, x1, y1, x2, y2, bitmap, relative);
 }
 
 void TGL::tglImageGenerator::Wipe()
@@ -41,6 +59,13 @@ void TGL::tglImageGenerator::Wipe()
     {
         image_.image[index] = 0;
     }
+}
+
+bool TGL::tglImageGenerator::Combine(TGL::tglBitmap &destination)
+{
+    // TODO: implement case where external bitmap is rendered to
+
+    return true;
 }
 
 bool TGL::tglImageGenerator::Combine()
@@ -97,11 +122,11 @@ bool TGL::tglImageGenerator::Combine()
         }
     }
 
-    for (yPixel = yStart; yPixel < yStop; ++yPixel)
+    ParseRangeY()
     {
         image_(yPixel);
 
-        for (xPixel = xStart; xPixel < xStop; ++xPixel)
+        ParseRangeX()
         {
             for (auto &layer : layers_)
             {
@@ -125,19 +150,163 @@ bool TGL::tglImageGenerator::Combine()
     return true;
 }
 
+bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool alpha)
+{
+    static largeint_t
+        xPixel, yPixel
+       ,xStart, yStart
+       ,xStop , yStop
+       ;
+
+
+
+    // if (erase)
+    // {
+    //     if (alpha)
+    //     {
+    //         for (auto &layer : layers_)
+    //         {
+    //             TGL::tglBitmap
+    //                 &bitmap = (*layer.bitmap);
+
+    //             GetRectangle(destination, xStart, yStart, xStop, yStop, bitmap);
+
+    //             ParseRangeY()
+    //             {
+    //                 destination(yPixel - destination.yPosition);
+    //                 bitmap(yPixel - yStart);
+
+    //                 ParseRangeX()
+    //                 {
+    //                     if (0xFF == TGL::Alpha(bitmap[xPixel - xStart].color()))
+    //                     {
+    //                         destination[xPixel - destination.xPosition] = background;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     else
+    //     {
+    //         for (auto &layer : layers_)
+    //         {
+    //             TGL::tglBitmap
+    //                 &bitmap = (*layer.bitmap);
+
+    //             GetRectangle(destination, xStart, yStart, xStop, yStop, bitmap);
+
+    //             ParseRangeY()
+    //             {
+    //                 destination(yPixel - destination.yPosition);
+    //                 bitmap(yPixel - yStart);
+
+    //                 ParseRangeX()
+    //                 {
+    //                     destination[xPixel - destination.xPosition] = background;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // else
+    
+    switch (alpha)
+    {
+        case true:
+            for (auto &layer : layers_)
+            {
+                TGL::tglBitmap
+                    &bitmap = (*layer.bitmap);
+
+                GetRectangle(destination, xStart, yStart, xStop, yStop, bitmap);
+
+                ParseRangeY()
+                {
+                    destination(yPixel - destination.yPosition);
+                    bitmap(yPixel - yStart);
+
+                    ParseRangeX()
+                    {
+                        if (0xFF == TGL::Alpha(bitmap[xPixel - xStart].color()))
+                        {
+                            destination[xPixel - destination.xPosition] = bitmap[xPixel - xStart];
+                        }
+                    }
+                }
+            }
+        break;
+
+
+
+        case false:
+            for (auto &layer : layers_)
+            {
+                TGL::tglBitmap
+                    &bitmap = (*layer.bitmap);
+
+                GetRectangle(destination, xStart, yStart, xStop, yStop, bitmap);
+
+                ParseRangeY()
+                {
+                    destination(yPixel - destination.yPosition);
+                    bitmap(yPixel - yStart);
+
+                    ParseRangeX()
+                    {
+                        destination[xPixel - destination.xPosition] = bitmap[xPixel - xStart];
+                    }
+                }
+            }
+        break;
+    }
+    
+    
+
+//    int
+//        x, y;
+//
+//    for (const Layer &layer : Draw::layers)
+//    {
+//        for (x = 0; x < layer.width; ++x)
+//        {
+//            for (y = 0; y < layer.height; ++y)
+//            {
+//                Draw::buffer[(y + layer.y) * Draw::width + x + layer.x] = 219;
+//            }
+//        }
+//    }
+
+    return true;
+}
+
+bool TGL::tglImageGenerator::CombineByPasting(bool alpha)
+{
+    return CombineByPasting(image_, alpha);
+}
+
 const TGL::tglBitmap &TGL::tglImageGenerator::GetBitmap() const
 {
     return image_;
 }
 
-TGL::tglImageGenerator &TGL::tglImageGenerator::Add(TGL::tglBitmap *bitmap)
+TGL::tglImageGenerator &TGL::tglImageGenerator::Add(TGL::tglBitmap *bitmap, uint16_t count)
 {
-    return (*this) += bitmap;
+    for (uint16_t index = 0; index < count; ++index)
+    {
+        (*this) += bitmap + index;
+    }
+
+    return (*this);
 }
 
 TGL::tglImageGenerator &TGL::tglImageGenerator::Add(TGL::tglBitmap &bitmap)
 {
     return Add(&bitmap);
+}
+
+TGL::tglImageGenerator &TGL::tglImageGenerator::Add(const std::vector<TGL::tglBitmap*> &bitmapList)
+{
+    return (*this) += bitmapList;
 }
 
 TGL::tglImageGenerator &TGL::tglImageGenerator::Remove(TGL::tglBitmap *bitmap)
@@ -165,6 +334,16 @@ TGL::tglImageGenerator &TGL::tglImageGenerator::operator +=(TGL::tglBitmap *bitm
 TGL::tglImageGenerator &TGL::tglImageGenerator::operator +=(TGL::tglBitmap &bitmap)
 {
     return (*this) += &bitmap;
+}
+
+TGL::tglImageGenerator &TGL::tglImageGenerator::operator +=(const std::vector<TGL::tglBitmap*> &bitmapList)
+{
+    for (auto &bitmap : bitmapList)
+    {
+        operator +=(bitmap);
+    }
+
+    return *this;
 }
 
 TGL::tglImageGenerator &TGL::tglImageGenerator::operator -=(TGL::tglBitmap *bitmap)
