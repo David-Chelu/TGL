@@ -207,20 +207,23 @@ int32_t DrawVerticalSlices(TGL::tglBitmap *destination, const std::vector<Layer>
                         yUp = layer.bitmap->yPosition,
                         yDown = layer.bitmap->yPosition + layer.bitmap->current.height;
                     
-                    if (xLeft <= lineStart && lineStart < xRight &&
-                        yUp   <= line      && line      < yDown)
+                    if (xLeft <= destination->xPosition + lineStart && destination->xPosition + lineStart < xRight &&
+                        yUp   <= destination->yPosition + line      && destination->yPosition + line      < yDown)
                     {
                         COLORREF
-                            &pixelInBitmap = layer.bitmap->image[(line - yUp) * layer.bitmap->current.width + lineStart - xLeft];
+                            &pixelInBitmap =
+                                layer.bitmap->image[(layer.bitmap->current.height - (destination->yPosition + line - yUp) - 1) * layer.bitmap->current.width + destination->xPosition + lineStart - xLeft];
                         
                         if (TGL::Alpha(pixelInBitmap))
                         {
                             color = pixelInBitmap;
+                            
+                            break;
                         }
                     }
                 }
 
-                currentLine = destination->image + line * destination->current.width + lineStart;
+                currentLine = destination->image + (destination->current.height - line - 1) * destination->current.width + lineStart;
                 currentLine[0] = color;
 
                 ++pixelsDrawn;
@@ -235,6 +238,8 @@ int32_t DrawVerticalSlices(TGL::tglBitmap *destination, const std::vector<Layer>
 
     return -1;
 }
+
+// TODO:DrawHorizontalSlices; this will make use of segmenting, and also parse Ox which avoids extra calculations
 
 bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool alpha)
 {
@@ -380,14 +385,6 @@ bool TGL::tglImageGenerator::CombineByPasting(bool alpha)
     return CombineByPasting(m_image, alpha);
 }
 
-void TestEndless(int id, int x)
-{
-    while (1)
-    {
-        std::cout << id;
-    }
-}
-
 bool TGL::tglImageGenerator::CombineByPastingMT(TGL::tglBitmap &destination, bool alpha)
 {
     if (destination.current.width)
@@ -408,72 +405,44 @@ bool TGL::tglImageGenerator::CombineByPastingMT(TGL::tglBitmap &destination, boo
 
             slices = destination.current.width;
             cores = TGL::GetNumberOfCores();
-            threads = TGL::Approximate(performance * ((long double)cores) );
+            threads = TGL::Approximate(performance * ((long double)cores) * ((long double)TGL::threadsPerCore));
 
             if (threads > 0)
             {
                 slicesPerCore   = slices / threads;
                 remainderSlices = slices % threads;
 
-                // std::cout << "\nSlices: " << slices << "; cores: " << cores << "; performance: " << performance << "; threads: " << threads << "; slicesPerCore: " << slicesPerCore << "; remainderSlices: " << remainderSlices;
+                std::vector<std::thread*>
+                    threadArray;
 
-                // TODO: define DrawVertical, dispatch threads
-                // std::thread()
+                uint16_t
+                    index;
+                
+                uint32_t
+                    currentSlice = 0;
 
-                if (true)
+                threadArray.resize(threads);
+                ParseRange(index, 0, threads, ++index)
                 {
-                    std::vector<std::thread*>
-                        threadArray;
-
-                    uint16_t
-                        index;
+                    threadArray[index] =
+                        new std::thread(DrawVerticalSlices,
+                                        &destination,
+                                        &layers_,
+                                        currentSlice,
+                                        slicesPerCore + (index < remainderSlices),
+                                        true);
                     
-                    uint32_t
-                        currentSlice = 0;
-
-                    threadArray.resize(threads);
-                    ParseRange(index, 0, threads, ++index)
-                    {
-                        threadArray[index] =
-                            new std::thread(DrawVerticalSlices,
-                                            &destination,
-                                            &layers_,
-                                            currentSlice,
-                                            slicesPerCore + (index < remainderSlices),
-                                            true);
-                        
-                        currentSlice += slicesPerCore + (index < remainderSlices);
-                    }
-
-                    ParseRange(index, 0, threads, ++index)
-                    {
-                        threadArray[index]->join();
-                    }
-
-                    ParseRange(index, 0, threads, ++index)
-                    {
-                        delete threadArray[index];
-                    }
+                    currentSlice += slicesPerCore + (index < remainderSlices);
                 }
 
-                if (false)
+                ParseRange(index, 0, threads, ++index)
                 {
-                    std::vector<std::thread*>
-                        threadArray;
+                    threadArray[index]->join();
+                }
 
-                    uint16_t
-                        index;
-
-                    threadArray.resize(threads);
-                    ParseRange(index, 0, threads, ++index)
-                    {
-                        threadArray[index] = new std::thread(TestEndless, index, slicesPerCore + (index < remainderSlices));
-                    }
-
-                    ParseRange(index, 0, threads, ++index)
-                    {
-                        threadArray[index]->join();
-                    }
+                ParseRange(index, 0, threads, ++index)
+                {
+                    delete threadArray[index];
                 }
 
                 return true;

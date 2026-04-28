@@ -23,7 +23,7 @@ class TGL::tglImageGenerator : public TGL::tglObject
 {
 public:
 
-    tglImageGenerator() : image{m_image} {}
+    tglImageGenerator() : image{m_image}, layers{layers_} {}
 
 
 
@@ -89,6 +89,9 @@ public:
 
     TGL::tglBitmap
         &image;
+    
+    const std::vector<Layer>
+        &layers;
 
 private:
 
