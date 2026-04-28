@@ -23,7 +23,7 @@ class TGL::tglImageGenerator : public TGL::tglObject
 {
 public:
 
-    tglImageGenerator() : image{image_} {}
+    tglImageGenerator() : image{m_image} {}
 
 
 
@@ -53,6 +53,8 @@ public:
        ,Combine()
        ,CombineByPasting(TGL::tglBitmap &destination, bool alpha = true)
        ,CombineByPasting(bool alpha = true)
+       ,CombineByPastingMT(TGL::tglBitmap &destination, bool alpha = true)
+       ,CombineByPastingMT(bool alpha = true)
        ;
 
     const TGL::tglBitmap
@@ -90,8 +92,11 @@ public:
 
 private:
 
+    bool
+        DrawVerticalByPasting();
+
     TGL::tglBitmap
-        image_;
+        m_image;
 
     std::vector<Layer>
         layers_;

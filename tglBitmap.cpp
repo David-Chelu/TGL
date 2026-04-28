@@ -335,7 +335,7 @@ bool TGL::tglBitmap::Crop(largeuint_t xSize, largeuint_t ySize)
         {
             TGL::Message("Current Branch", "Different ySize");
 
-            //TODO: debug, it enters this branch but the crop doesn't take place
+            // TODO: debug, it enters this branch but the crop doesn't take place
 
             COLORREF
                 *backup;
@@ -399,6 +399,36 @@ COLORREF TGL::tglBitmap::color() const
     }
 
     return 0;
+}
+
+largeuint_t TGL::tglBitmap::beginX() const
+{
+    return 0;
+}
+
+largeuint_t TGL::tglBitmap::middleX() const
+{
+    return m_current.width / 2;
+}
+
+largeuint_t TGL::tglBitmap::endX() const
+{
+    return m_current.width - 1;
+}
+
+largeuint_t TGL::tglBitmap::beginY() const
+{
+    return 0;
+}
+
+largeuint_t TGL::tglBitmap::middleY() const
+{
+    return m_current.height / 2;
+}
+
+largeuint_t TGL::tglBitmap::endY() const
+{
+    return m_current.height - 1;
 }
 
 std::string TGL::tglBitmap::GetValues() const
@@ -962,19 +992,19 @@ TGL::tglBitmap &TGL::tglBitmap::operator ()(largeuint_t line)
 {
     switch (line)
     {
-        case BEGIN:
+        case TGL::Begin:
         {
             line = 0;
 
             break;
         }
-        case END:
+        case TGL::End:
         {
             line = current.height - 1;
 
             break;
         }
-        case MIDDLE:
+        case TGL::Middle:
         {
             line = current.height / 2;
 
@@ -995,19 +1025,19 @@ TGL::tglBitmap &TGL::tglBitmap::operator [](largeuint_t column)
 {
     switch (column)
     {
-        case BEGIN:
+        case TGL::Begin:
         {
             column = 0;
 
             break;
         }
-        case END:
+        case TGL::End:
         {
             column = current.width - 1;
 
             break;
         }
-        case MIDDLE:
+        case TGL::Middle:
         {
             column = current.width / 2;
 

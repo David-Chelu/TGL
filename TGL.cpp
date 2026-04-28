@@ -3,6 +3,11 @@
 
 
 
+bool TGL::IsFloatEqual(long double value, long double comparison, long double precision)
+{
+    return TGL::Abs(value - comparison) < TGL::Abs(precision);
+}
+
 int8_t TGL::Sign(largeint_t value)
 {
     return (value < 0? -1 : 1);
@@ -33,6 +38,18 @@ uint16_t TGL::Digits(largeint_t value)
     }
 
     return digits;
+}
+
+largeint_t TGL::Approximate(long double value, long double precision)
+{
+    if (largeint_t(value) != largeint_t(value + precision))
+    {
+        return largeint_t(value + precision);
+    }
+    else
+    {
+        return largeint_t(value);
+    }
 }
 
 std::string TGL::String(largeint_t value)
@@ -153,6 +170,11 @@ std::string TGL::Colors(COLORREF pixel)
         +  ')';
 }
 
+COLORREF TGL::Pixel(uint8_t color, uint8_t alpha)
+{
+    return uint32_t(color) | uint32_t(color) << 8 | uint32_t(color) << 16 | uint32_t(alpha) << 24;
+}
+
 COLORREF TGL::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 {
     return uint32_t(blue) | uint32_t(green) << 8 | uint32_t(red) << 16 | uint32_t(alpha) << 24;
@@ -228,6 +250,11 @@ int TGL::Message(const std::string &title, const std::string &description)
     return MessageBox(NULL, description.c_str(), title.c_str(), MB_OK);
 }
 
+int TGL::Message(const std::string &description)
+{
+    return TGL::Message("Message", description.c_str());
+}
+
 std::map<int, unsigned> TGL::ExtractPrimeDivisors(int number)
 {
     std::map<int, unsigned>
@@ -272,6 +299,11 @@ std::map<int, unsigned> TGL::ExtractPrimeDivisors(int number)
 
 
     return result;
+}
+
+DWORD TGL::GetNumberOfCores()
+{
+    return TGL::systemInformation.dwNumberOfProcessors;
 }
 
 Templated void *TGL::Copy(void *destination, void *source, largeuint_t count)
@@ -451,6 +483,7 @@ namespace TGL
 
 void TGL::Initialize()
 {
+    GetSystemInfo(&TGL::systemInformation);
 }
 
 void TGL::Clear()

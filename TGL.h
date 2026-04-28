@@ -12,6 +12,8 @@
 #include <windows.h>
 #include <iostream>
 #include <fstream>
+#include <thread>
+#include <mutex>
 #include <map>
 #include <vector>
 #include <string>
@@ -33,10 +35,6 @@ typedef uint64_t largeuint_t;
 #define RED   1 << 2
 #define ALPHA 1 << 3
 
-#define BEGIN 0
-#define MIDDLE -2
-#define END -1
-
 #define CLASS_ID(object) typeid(object).name()
 #define CLASS_NAME(object) TGL::className[CLASS_ID(object)]
 #define CLASS_IDENTITY \
@@ -52,8 +50,7 @@ if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))\
 {\
     TranslateMessage(&message);\
     DispatchMessage (&message);\
-}\
-else
+}
 
 #define LoopEnd }
 
@@ -87,6 +84,7 @@ namespace TGL
     struct WindowAttributes;
     struct ImageAttributes;
     struct HeaderTBM;
+    struct Percent;
 
 
 
@@ -118,16 +116,19 @@ namespace TGL
        ,Count
     };
 
-    enum class Position
-    {
-        Middle
-    };
-
     // TGL enums
 
 
 
     // TGL variables
+
+    // this variable is a multiplier for the maximum calculated threads that can be used
+    // default = 25%, equivalent to battery saver
+    extern TGL::Percent
+        performance;
+
+    constexpr uint32_t
+        threadsPerCore = 1;
 
     extern std::map<const std::string, const std::string>
         className;
@@ -155,18 +156,35 @@ namespace TGL
                    ,WPARAM wParam
                    ,LPARAM lParam);
 
-    constexpr uint16_t
-        bitCount = 32;
+    SYSTEM_INFO
+        systemInformation;
 
     constexpr uint8_t
         bitmap = 0,
         animation = 1;
+
+    constexpr uint16_t
+        bitCount = 32;
+    
+    COLORREF
+        unrenderedColor = 0;
+    
+    constexpr long double
+        defaultPrecision = 0.0001F;
+    
+    constexpr largeuint_t
+        Begin = 0,
+        Middle = -2,
+        End = -1;
 
     // TGL variables
 
 
 
     // TGL functions
+
+    bool
+        IsFloatEqual(long double value, long double comparison, long double precision = TGL::defaultPrecision);
 
     inline int8_t
         Sign(largeint_t value);
@@ -177,6 +195,9 @@ namespace TGL
 
     inline uint16_t
         Digits(largeint_t value);
+    
+    largeint_t
+        Approximate(long double value, long double precision = TGL::defaultPrecision);
 
     std::string
         String(largeint_t value)
@@ -188,7 +209,8 @@ namespace TGL
        ;
 
     inline COLORREF
-        Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
+        Pixel(uint8_t color, uint8_t alpha = 255)
+       ,Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
        ,Red(COLORREF color)
        ,Green(COLORREF color)
        ,Blue(COLORREF color)
@@ -206,10 +228,17 @@ namespace TGL
     inline int
         xScreen(),
         yScreen(),
-        Message(const std::string &title, const std::string &description);
+        Message(const std::string &title, const std::string &description),
+        Message(const std::string &description);
 
     std::map<int, unsigned>
         ExtractPrimeDivisors(int number);
+
+    uint32_t
+        CalculateThreads(uint32_t numberOfSlices = 0);
+
+    DWORD
+        GetNumberOfCores();
 
     Templated void *Copy(void *destination, void   *source, largeuint_t count);
     Templated void *Set (void *destination, DataType value, largeuint_t count);
@@ -253,6 +282,8 @@ namespace TGL
 
 // TODO: separate class definition and method definition into 2 headers
 
+#include "tglPercent.h"
+
 #include "tglObject.h"
 #include "tglWindow.h"
 #include "tglBitmap.h"
@@ -260,6 +291,8 @@ namespace TGL
 #include "tglVideo.h"
 
 #include "TGL.cpp"
+
+#include "tglPercent.cpp"
 
 #include "tglObject.cpp"
 #include "tglWindow.cpp"
@@ -271,6 +304,11 @@ namespace TGL
 
 namespace TGL
 {
+    // this variable is a multiplier for the maximum calculated threads that can be used
+    // default = 25%, equivalent to battery saver
+    TGL::Percent
+        performance = 25_pc;
+    
     std::map<const std::string, const std::string>
         className =
     {

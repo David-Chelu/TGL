@@ -118,6 +118,14 @@ public:
     inline COLORREF
         color() const;
 
+    inline largeuint_t
+        beginX() const,
+        middleX() const,
+        endX() const,
+        beginY() const,
+        middleY() const,
+        endY() const;
+
     inline std::string
         GetValues() const;
 
@@ -155,9 +163,7 @@ public:
        ,&operator  =(const TGL::tglBitmap &source)
        ,&operator  =(const std::string &newDirectory)
        ,&operator ()(largeuint_t line)
-       ,&operator ()(TGL::Position line)
        ,&operator [](largeuint_t column)
-       ,&operator [](TGL::Position column)
        ;
 
     operator bool() const;
@@ -172,8 +178,8 @@ public:
         &planned;
 
     COLORREF
-        *const &image,
-        *const &selectedLine;
+        *&image,
+        *&selectedLine;
 
     const uint64_t
         &selectedColumn,

@@ -5,15 +5,15 @@
 
 void TGL::tglImageGenerator::CreateBuffer(largeuint_t xBuffer, largeuint_t yBuffer)
 {
-    image_.planned.width  = xBuffer;
-    image_.planned.height = yBuffer;
+    m_image.planned.width  = xBuffer;
+    m_image.planned.height = yBuffer;
 
-    image_.Allocate();
+    m_image.Allocate();
 }
 
 void TGL::tglImageGenerator::DrawPattern()
 {
-    DrawPattern(image_);
+    DrawPattern(m_image);
 }
 
 void TGL::tglImageGenerator::GetRectangle(const TGL::tglBitmap &destination
@@ -50,14 +50,14 @@ void TGL::tglImageGenerator::GetRectangle(largeint_t &x1
                                          ,bool relative
                                          ) const
 {
-    GetRectangle(image_, x1, y1, x2, y2, bitmap, relative);
+    GetRectangle(m_image, x1, y1, x2, y2, bitmap, relative);
 }
 
 void TGL::tglImageGenerator::Wipe()
 {
-    for (largeuint_t index = 0; index < image_.size; ++index)
+    for (largeuint_t index = 0; index < m_image.size; ++index)
     {
-        image_.image[index] = 0;
+        m_image.image[index] = 0;
     }
 }
 
@@ -98,8 +98,8 @@ bool TGL::tglImageGenerator::Combine()
        ,yPixel
        ;
 
-    xStart = image_.current.width;
-    yStart = image_.current.height;
+    xStart = m_image.current.width;
+    yStart = m_image.current.height;
     xStop  = 0;
     yStop  = 0;
 
@@ -124,7 +124,7 @@ bool TGL::tglImageGenerator::Combine()
 
     ParseRangeY()
     {
-        image_(yPixel);
+        m_image(yPixel);
 
         ParseRangeX()
         {
@@ -139,7 +139,7 @@ bool TGL::tglImageGenerator::Combine()
                     y1 <= yPixel && yPixel < y2)
                     // && 255 == TGL::Alpha(color = layer.bitmap(yPixel)[xPixel]
                 {
-                    image_[xPixel] = bitmap(yPixel - y1)[xPixel - x1];
+                    m_image[xPixel] = bitmap(yPixel - y1)[xPixel - x1];
 
                     break;
                 }
@@ -148,6 +148,92 @@ bool TGL::tglImageGenerator::Combine()
     }
 
     return true;
+}
+
+int32_t DrawVerticalSliceColor(TGL::tglBitmap *destination, uint32_t lineStart, uint32_t span, COLORREF color)
+{
+    // although the variable is called lineStart, it does not refer to the y coordinate in the image. Instead, it says where, horizontally, the current pixel is on the given line, in other words the column (0 -> width)
+
+    int32_t
+        line,
+        pixelsDrawn{0};
+
+    COLORREF
+        *currentLine;
+
+    while (span > 0)
+    {
+        ParseRange(line, 0, destination->current.height, ++line)
+        {
+            currentLine = destination->image + line * destination->current.width + lineStart;
+            currentLine[0] = color;
+
+            ++pixelsDrawn;
+        }
+
+        ++lineStart;
+        --span;
+    }
+
+    return pixelsDrawn;
+}
+
+int32_t DrawVerticalSlices(TGL::tglBitmap *destination, const std::vector<Layer> *layers, uint32_t lineStart, uint32_t span, bool alpha)
+{
+    // although the variable is called lineStart, it does not refer to the y coordinate in the image. Instead, it says where, horizontally, the current pixel is on the given line, in other words the column (0 -> width)
+
+    if (destination && layers)
+    {
+        int32_t
+            line,
+            width = int32_t(destination->current.width),
+            pixelsDrawn{0};
+        
+        COLORREF
+            *currentLine,
+            color;
+        
+        while (span > 0)
+        {
+            ParseRange(line, 0, destination->current.height, ++line)
+            {
+                color = TGL::unrenderedColor;
+
+                for (auto layer : *layers)
+                {
+                    largeint_t
+                        xLeft = layer.bitmap->xPosition,
+                        xRight = layer.bitmap->xPosition + layer.bitmap->current.width,
+                        yUp = layer.bitmap->yPosition,
+                        yDown = layer.bitmap->yPosition + layer.bitmap->current.height;
+                    
+                    if (xLeft <= lineStart && lineStart < xRight &&
+                        yUp   <= line      && line      < yDown)
+                    {
+                        COLORREF
+                            &pixelInBitmap = layer.bitmap->image[(line - yUp) * layer.bitmap->current.width + lineStart - xLeft];
+                        
+                        if (TGL::Alpha(pixelInBitmap))
+                        {
+                            color = pixelInBitmap;
+                        }
+                    }
+                }
+
+                currentLine = destination->image + line * destination->current.width + lineStart;
+                currentLine[0] = color;
+
+                ++pixelsDrawn;
+            }
+
+            ++lineStart;
+            --span;
+        }
+
+        return pixelsDrawn;
+    }
+
+    return -1;
 }
 
 bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool alpha)
@@ -209,10 +295,11 @@ bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool 
     //     }
     // }
     // else
-    
+
     switch (alpha)
     {
         case true:
+        {
             for (auto &layer : layers_)
             {
                 TGL::tglBitmap
@@ -234,6 +321,7 @@ bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool 
                     }
                 }
             }
+        }
         break;
 
 
@@ -259,8 +347,8 @@ bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool 
             }
         break;
     }
-    
-    
+
+
 
 //    int
 //        x, y;
@@ -279,14 +367,131 @@ bool TGL::tglImageGenerator::CombineByPasting(TGL::tglBitmap &destination, bool 
     return true;
 }
 
+/**
+ * TODO:
+ * 1. stretch blt with distortion (quadrilateral but not necessarily parallel lines). This might make use of line algorithm as starting point for each line of pixels
+ * 2. add a shadows array, which has the same ordering as Layers, or alternatively include shadow object inside Layer class
+ * 3. isometric projection (dist = infinite) for global illumination source, using a predefined angle value
+ * 4. perspective projection from a given point, using triangle equivalence. This has use in camera perspective (can be placed anywhere on the screen or off screen)
+ */
+
 bool TGL::tglImageGenerator::CombineByPasting(bool alpha)
 {
-    return CombineByPasting(image_, alpha);
+    return CombineByPasting(m_image, alpha);
+}
+
+void TestEndless(int id, int x)
+{
+    while (1)
+    {
+        std::cout << id;
+    }
+}
+
+bool TGL::tglImageGenerator::CombineByPastingMT(TGL::tglBitmap &destination, bool alpha)
+{
+    if (destination.current.width)
+    {
+        long double
+            performance;
+
+        performance = TGL::performance.getValue();
+
+        if (!TGL::IsFloatEqual(performance, 0.F))
+        {
+            uint32_t
+                slices,
+                cores,
+                threads,
+                slicesPerCore,
+                remainderSlices;
+
+            slices = destination.current.width;
+            cores = TGL::GetNumberOfCores();
+            threads = TGL::Approximate(performance * ((long double)cores) );
+
+            if (threads > 0)
+            {
+                slicesPerCore   = slices / threads;
+                remainderSlices = slices % threads;
+
+                // std::cout << "\nSlices: " << slices << "; cores: " << cores << "; performance: " << performance << "; threads: " << threads << "; slicesPerCore: " << slicesPerCore << "; remainderSlices: " << remainderSlices;
+
+                // TODO: define DrawVertical, dispatch threads
+                // std::thread()
+
+                if (true)
+                {
+                    std::vector<std::thread*>
+                        threadArray;
+
+                    uint16_t
+                        index;
+                    
+                    uint32_t
+                        currentSlice = 0;
+
+                    threadArray.resize(threads);
+                    ParseRange(index, 0, threads, ++index)
+                    {
+                        threadArray[index] =
+                            new std::thread(DrawVerticalSlices,
+                                            &destination,
+                                            &layers_,
+                                            currentSlice,
+                                            slicesPerCore + (index < remainderSlices),
+                                            true);
+                        
+                        currentSlice += slicesPerCore + (index < remainderSlices);
+                    }
+
+                    ParseRange(index, 0, threads, ++index)
+                    {
+                        threadArray[index]->join();
+                    }
+
+                    ParseRange(index, 0, threads, ++index)
+                    {
+                        delete threadArray[index];
+                    }
+                }
+
+                if (false)
+                {
+                    std::vector<std::thread*>
+                        threadArray;
+
+                    uint16_t
+                        index;
+
+                    threadArray.resize(threads);
+                    ParseRange(index, 0, threads, ++index)
+                    {
+                        threadArray[index] = new std::thread(TestEndless, index, slicesPerCore + (index < remainderSlices));
+                    }
+
+                    ParseRange(index, 0, threads, ++index)
+                    {
+                        threadArray[index]->join();
+                    }
+                }
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool TGL::tglImageGenerator::CombineByPastingMT(bool alpha)
+{
+    return CombineByPastingMT(m_image, alpha);
 }
 
 const TGL::tglBitmap &TGL::tglImageGenerator::GetBitmap() const
 {
-    return image_;
+    return m_image;
 }
 
 TGL::tglImageGenerator &TGL::tglImageGenerator::Add(TGL::tglBitmap *bitmap, uint16_t count)
