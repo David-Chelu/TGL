@@ -109,6 +109,36 @@ std::string TGL::String(double value, uint8_t precision)
     return TGL::String(int64_t(whole)) + '.' + TGL::String(int64_t(value));
 }
 
+std::string TGL::String(const std::vector<vType> &vector)
+{
+    std::string
+        result;
+    
+    if (0 == vector.size())
+    {
+        result = "{}";
+    }
+    else
+    {
+        result = '{';
+        
+        for (int index = 0; index < vector.size() - 1; ++index)
+        {
+            result = result + TGL::String(vector[index]) + ", ";
+        }
+
+        result = result + TGL::String(vector.back()) + '}';
+    }
+
+    return result;
+}
+
+std::string TGL::String(const TGL::tglVector &vector)
+{
+    
+    return TGL::String(vector.dimensions);
+}
+
 std::string TGL::StringBinary(largeuint_t value)
 {
     std::string
@@ -470,6 +500,222 @@ Templated void TGL::StepSet(void *destination
         offset += skip;
         skip   += variation;
     }
+}
+
+TGL::tglVector operator +(const TGL::tglVector &leftParameter, const TGL::tglVector &rightParameter)
+{
+    TGL::tglVector result;
+    result.Resize(TGL::Max(leftParameter.Size(), rightParameter.Size()));
+
+    result += leftParameter;
+    result += rightParameter;
+
+    return result;
+}
+
+TGL::tglVector operator -(const TGL::tglVector &leftParameter, const TGL::tglVector &rightParameter)
+{
+    TGL::tglVector result;
+    result.Resize(TGL::Max(leftParameter.Size(), rightParameter.Size()));
+
+    result += leftParameter;
+    result -= rightParameter;
+
+    return result;
+}
+
+TGL::tglVector operator *(const TGL::tglVector &leftParameter, const TGL::tglVector &rightParameter)
+{
+    TGL::tglVector result;
+    result.Resize(TGL::Max(leftParameter.Size(), rightParameter.Size()));
+
+    unsigned
+        parse = TGL::Min(leftParameter.Size(), rightParameter.Size());
+
+    for (unsigned index = 0; index < parse; ++index)
+    {
+        result[index] = leftParameter[index];
+    }
+
+    result *= rightParameter;
+
+    return result;
+}
+
+TGL::tglVector operator /(const TGL::tglVector &leftParameter, const TGL::tglVector &rightParameter)
+{
+    TGL::tglVector result;
+    result.Resize(TGL::Max(leftParameter.Size(), rightParameter.Size()));
+
+    unsigned
+        parse = TGL::Min(leftParameter.Size(), rightParameter.Size());
+
+    for (unsigned index = 0; index < parse; ++index)
+    {
+        result[index] = leftParameter[index];
+    }
+
+    result /= rightParameter;
+
+    return result;
+}
+
+TGL::tglVector operator ^(const TGL::tglVector &leftParameter, const TGL::tglVector &rightParameter)
+{
+    TGL::tglVector result;
+    result.Resize(TGL::Max(leftParameter.Size(), rightParameter.Size()));
+
+    unsigned
+        parse = TGL::Min(leftParameter.Size(), rightParameter.Size());
+
+    for (unsigned index = 0; index < parse; ++index)
+    {
+        result[index] = leftParameter[index];
+    }
+    
+    result ^= rightParameter;
+
+    return result;
+}
+
+TGL::tglVector operator -(const TGL::tglVector &vector, largeint_t value)
+{
+    TGL::tglVector result;
+    result = vector;
+    result -= value;
+
+    return result;
+}
+
+TGL::tglVector operator +(const TGL::tglVector &vector, largeint_t value)
+{
+    TGL::tglVector result;
+    result = vector;
+    result += value;
+
+    return result;
+}
+
+TGL::tglVector operator *(const TGL::tglVector &vector, largeint_t value)
+{
+    TGL::tglVector result;
+    result = vector;
+    result *= value;
+
+    return result;
+}
+
+TGL::tglVector operator /(const TGL::tglVector &vector, largeint_t value)
+{
+    TGL::tglVector result;
+    result = vector;
+    result /= value;
+
+    return result;
+}
+
+TGL::tglVector operator ^(const TGL::tglVector &vector, largeint_t value)
+{
+    TGL::tglVector result;
+    result = vector;
+    result ^= value;
+
+    return result;
+}
+
+TGL::tglVector operator -(largeint_t value, const TGL::tglVector &vector)
+{
+    TGL::tglVector
+        result = std::vector<vType>(vector.Size(), value);
+    result -= vector;
+
+    return result;
+}
+
+TGL::tglVector operator +(largeint_t value, const TGL::tglVector &vector)
+{
+    TGL::tglVector
+        result = std::vector<vType>(vector.Size(), value);
+    result += vector;
+
+    return result;
+}
+
+TGL::tglVector operator *(largeint_t value, const TGL::tglVector &vector)
+{
+    TGL::tglVector
+        result = std::vector<vType>(vector.Size(), value);
+    result *= vector;
+
+    return result;
+}
+
+TGL::tglVector operator /(largeint_t value, const TGL::tglVector &vector)
+{
+    TGL::tglVector
+        result = std::vector<vType>(vector.Size(), value);
+    result /= vector;
+
+    return result;
+}
+
+TGL::tglVector operator ^(largeint_t value, const TGL::tglVector &vector)
+{
+    TGL::tglVector
+        result = std::vector<vType>(vector.Size(), value);
+    result ^= vector;
+
+    return result;
+}
+
+bool operator ==(const TGL::tglVector &leftValue, const TGL::tglVector &rightValue)
+{
+    return leftValue.Size() == rightValue.Size() && leftValue.dimensions == rightValue.dimensions;
+}
+
+bool operator !=(const TGL::tglVector &leftValue, const TGL::tglVector &rightValue)
+{
+    return !(leftValue == rightValue);
+}
+
+bool operator ==(const TGL::tglVector &leftValue, const std::vector<vType> &rightValue)
+{
+    return leftValue.Size() == rightValue.size() && leftValue.dimensions == rightValue;
+}
+
+bool operator !=(const TGL::tglVector &leftValue, const std::vector<vType> &rightValue)
+{
+    return !(leftValue == rightValue);
+}
+
+bool operator ==(const std::vector<vType> &leftValue, const TGL::tglVector &rightValue)
+{
+    return leftValue.size() == rightValue.Size() && leftValue == rightValue.dimensions;
+}
+
+bool operator !=(const std::vector<vType> &leftValue, const TGL::tglVector &rightValue)
+{
+    return !(leftValue == rightValue);
+}
+
+bool operator ==(const TGL::tglVector &leftValue, const std::initializer_list<vType> &rightValue)
+{
+    return leftValue == std::vector<vType>(rightValue);
+}
+
+bool operator !=(const TGL::tglVector &leftValue, const std::initializer_list<vType> &rightValue)
+{
+    return leftValue != std::vector<vType>(rightValue);
+}
+
+bool operator ==(const std::initializer_list<vType> &leftValue, const TGL::tglVector &rightValue)
+{
+    return std::vector<vType>(leftValue) == rightValue;
+}
+
+bool operator !=(const std::initializer_list<vType> &leftValue, const TGL::tglVector &rightValue)
+{
+    return std::vector<vType>(leftValue) != rightValue;
 }
 
 

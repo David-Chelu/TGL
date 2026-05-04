@@ -95,9 +95,6 @@ public:
 
 private:
 
-    bool
-        DrawVerticalByPasting();
-
     TGL::tglBitmap
         m_image;
 

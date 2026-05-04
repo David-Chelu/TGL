@@ -214,7 +214,7 @@ int32_t DrawVerticalSlices(TGL::tglBitmap *destination, const std::vector<Layer>
                             &pixelInBitmap =
                                 layer.bitmap->image[(layer.bitmap->current.height - (destination->yPosition + line - yUp) - 1) * layer.bitmap->current.width + destination->xPosition + lineStart - xLeft];
                         
-                        if (TGL::Alpha(pixelInBitmap))
+                        if (!alpha || alpha && TGL::Alpha(pixelInBitmap))
                         {
                             color = pixelInBitmap;
                             
@@ -430,7 +430,7 @@ bool TGL::tglImageGenerator::CombineByPastingMT(TGL::tglBitmap &destination, boo
                                         &layers_,
                                         currentSlice,
                                         slicesPerCore + (index < remainderSlices),
-                                        true);
+                                        alpha);
                     
                     currentSlice += slicesPerCore + (index < remainderSlices);
                 }

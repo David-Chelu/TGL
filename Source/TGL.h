@@ -15,9 +15,12 @@
 #include <thread>
 #include <mutex>
 #include <map>
+#include <unordered_map>
 #include <vector>
+#include <initializer_list>
 #include <string>
 #include <algorithm>
+#include <iterator>
 #include <math.h>
 #include <typeinfo>
 #include <stdint.h>
@@ -69,6 +72,8 @@ if (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))\
 
 
 
+using vType = largeint_t;
+
 namespace TGL
 {
     // TGL classes
@@ -78,6 +83,7 @@ namespace TGL
     class tglVideo;
     class tglBitmap;
     class tglImageGenerator;
+    class tglVector;
 
 
 
@@ -202,6 +208,8 @@ namespace TGL
     std::string
         String(largeint_t value)
        ,String(double value, uint8_t precision)
+       ,String(const std::vector<vType> &vector)
+       ,String(const TGL::tglVector &vector)
        ,StringBinary(largeuint_t value)
        ,StringHex(largeuint_t value)
        ,BitmapInfoValues(const BITMAPINFO &info)
@@ -233,7 +241,7 @@ namespace TGL
 
     std::map<int, unsigned>
         ExtractPrimeDivisors(int number);
-
+    
     uint32_t
         CalculateThreads(uint32_t numberOfSlices = 0);
 
@@ -285,6 +293,7 @@ namespace TGL
 #include "tglPercent.h"
 
 #include "tglObject.h"
+#include "tglVector.h"
 #include "tglWindow.h"
 #include "tglBitmap.h"
 #include "tglImageGenerator.h"
@@ -295,6 +304,7 @@ namespace TGL
 #include "tglPercent.cpp"
 
 #include "tglObject.cpp"
+#include "tglVector.cpp"
 #include "tglWindow.cpp"
 #include "tglBitmap.cpp"
 #include "tglImageGenerator.cpp"
@@ -317,6 +327,7 @@ namespace TGL
        ,{ typeid(TGL::tglVideo         ).name(), "tglVideo"          }
        ,{ typeid(TGL::tglBitmap        ).name(), "tglBitmap"         }
        ,{ typeid(TGL::tglImageGenerator).name(), "tglImageGenerator" }
+       ,{ typeid(TGL::tglVector        ).name(), "tglVector"         }
     };
 
     RECT TGL::WindowAttributes::workRect;
