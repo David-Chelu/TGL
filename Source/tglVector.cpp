@@ -33,10 +33,14 @@ void TGL::tglVector::DisplayValues() const
 
 void TGL::tglVector::LockSize(size_t size)
 {
-    if (size_t(-1) != size && size != _dimensions.size())
+    if (size_t(-1) != size)
     {
-        _dimensions.resize(size);
         _locked = true;
+
+        if (size != _dimensions.size())
+        {
+            _dimensions.resize(size);
+        }
     }
 }
 

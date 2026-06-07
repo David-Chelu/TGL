@@ -454,6 +454,40 @@ void tglVector_FixedSize()
     ExpectVectorEqual(vector3, tglVector({2, 2, 2}));
     ExpectVectorEqual(vector4, tglVector({2, 2, 2, 2}));
 }
+
+void tglVector_LockSize()
+{
+    tglVector
+        vector(3);
+    ExpectEqual(vector.Size(), 3);
+
+    vector.Resize(5);
+    ExpectEqual(vector.Size(), 3);
+
+    vector.UnlockSize();
+    vector.Resize(5);
+    ExpectEqual(vector.Size(), 5);
+
+    vector.LockSize(5);
+    vector.Resize(3);
+    ExpectEqual(vector.Size(), 5);
+}
+
+void tglVector_DimensionAccess()
+{
+    TGL::Dimensions x = TGL::Dimensions::x;
+    TGL::Dimensions y = TGL::Dimensions::y;
+    TGL::Dimensions z = TGL::Dimensions::z;
+    TGL::Dimensions t = TGL::Dimensions::t;
+
+    tglVector
+        vector = {1, 2, 3, 4};
+    
+    ExpectEqual(vector[x], 1);
+    ExpectEqual(vector[y], 2);
+    ExpectEqual(vector[z], 3);
+    ExpectEqual(vector[t], 4);
+}
 }
 
 TGL::Test::test_tglVector::test_tglVector(TGL::Test::test_TGL &testMaster) : test_tglTest(testMaster)
@@ -471,6 +505,8 @@ TGL::Test::test_tglVector::test_tglVector(TGL::Test::test_TGL &testMaster) : tes
        ,{"tglVector_RaisePower", tglVectorTests::tglVector_RaisePower}
        ,{"tglVector_ExternalOperators", tglVectorTests::tglVector_ExternalOperators}
        ,{"tglVector_FixedSize", tglVectorTests::tglVector_FixedSize}
+       ,{"tglVector_LockSize", tglVectorTests::tglVector_LockSize}
+       ,{"tglVector_DimensionAccess", tglVectorTests::tglVector_DimensionAccess}
     };
 }
 
