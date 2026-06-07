@@ -122,6 +122,14 @@ namespace TGL
        ,Count
     };
 
+    enum class Dimensions
+    {
+        x = 0
+       ,y = 1
+       ,z = 2
+       ,t = 3
+    };
+
     // TGL enums
 
 

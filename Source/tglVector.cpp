@@ -3,14 +3,46 @@
 
 
 
+TGL::tglVector::tglVector(size_t size)
+{
+    LockSize(size);
+}
+
+TGL::tglVector::tglVector(const std::vector<vType> &vector)
+{
+    _dimensions = vector;
+}
+
+TGL::tglVector::tglVector(const std::initializer_list<vType> &ilVector)
+{
+    _dimensions = std::vector<vType>(ilVector);
+}
+
 void TGL::tglVector::Resize(uint32_t size, vType value)
 {
-    _dimensions.resize(size, value);
+    if (!_locked)
+    {
+        _dimensions.resize(size, value);
+    }
 }
 
 void TGL::tglVector::DisplayValues() const
 {
     std::cout << this->GetValues() + "\n\n\n\n";
+}
+
+void TGL::tglVector::LockSize(size_t size)
+{
+    if (size_t(-1) != size && size != _dimensions.size())
+    {
+        _dimensions.resize(size);
+        _locked = true;
+    }
+}
+
+void TGL::tglVector::UnlockSize()
+{
+    _locked = false;
 }
 
 largeuint_t TGL::tglVector::Size() const
@@ -40,9 +72,15 @@ std::string TGL::tglVector::GetValues() const
     }
 
     return this->TGL::tglObject::GetValues()
+           + "\nLocked: " + (_locked? "Yes" : "No")
            + "\nDimensions: " + TGL::String(_dimensions.size())
            + dimensionsString
            ;
+}
+
+const std::vector<vType> &TGL::tglVector::Dimensions() const
+{
+    return _dimensions;
 }
 
 TGL::tglVector::operator bool() const
@@ -91,7 +129,17 @@ TGL::tglVector &TGL::tglVector::operator ^=(const std::initializer_list<vType> &
 
 TGL::tglVector &TGL::tglVector::operator =(const std::vector<vType> &vector)
 {
-    _dimensions = vector;
+    if (!_locked)
+    {
+        _dimensions = vector;
+    }
+    else
+    {
+        for (int index = 0; index < _dimensions.size(); ++index)
+        {
+            _dimensions[index] = vector[index];
+        }
+    }
 
     return *this;
 }
@@ -302,6 +350,16 @@ vType &TGL::tglVector::operator [](unsigned index)
 vType TGL::tglVector::operator [](unsigned index) const
 {
     return _dimensions[index];
+}
+
+vType &TGL::tglVector::operator [](TGL::Dimensions dimension)
+{
+    return _dimensions[largeint_t(dimension)];
+}
+
+vType TGL::tglVector::operator [](TGL::Dimensions dimension) const
+{
+    return _dimensions[largeint_t(dimension)];
 }
 
 

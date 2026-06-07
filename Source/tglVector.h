@@ -7,21 +7,26 @@ class TGL::tglVector : public TGL::tglObject
 {
 public:
 
-    tglVector() : dimensions{_dimensions} {}
-    tglVector(const std::vector<vType> &vector) : tglVector() { _dimensions = vector; }
-    tglVector(const std::initializer_list<vType> &vector) : tglVector() { _dimensions = std::vector<vType>(vector); }
+    tglVector(size_t size = size_t(-1));
+    tglVector(const std::vector<vType> &vector);
+    tglVector(const std::initializer_list<vType> &ilVector);
 
 
 
     void
-        Resize(uint32_t size, vType value = 0),
-        DisplayValues() const;
+        Resize(uint32_t size = 0, vType value = 0),
+        DisplayValues() const,
+        LockSize(size_t size = 0),
+        UnlockSize();
 
     largeuint_t
         Size() const;
     
     std::string
         GetValues() const;
+
+    const std::vector<vType>
+        &Dimensions() const;
 
     operator bool() const;
     bool operator !() const;
@@ -56,17 +61,19 @@ public:
     
     vType
         &operator [](unsigned index),
-        operator [](unsigned index) const;
+        operator [](unsigned index) const,
+        &operator [](TGL::Dimensions dimension),
+        operator [](TGL::Dimensions dimension) const;
 
 
-
-    std::vector<vType>
-        &dimensions;
     
 protected:
 
     std::vector<vType>
         _dimensions;
+
+    bool
+        _locked;
 };
 
 

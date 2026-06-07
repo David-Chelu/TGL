@@ -11,17 +11,17 @@ using Vector = std::vector<vType>;
 
 void tglVector_Initialization()
 {
-    TGL::tglVector
+    tglVector
         vector;
 
-    ExpectEqual(vector.dimensions.size(), 0);
+    ExpectEqual(vector.Dimensions().size(), 0);
     ExpectEqual(vector.Size(), 0);
     ExpectVectorEqual(vector, tglVector());
 }
 
 void tglVector_Resize()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     // checking size only
@@ -65,7 +65,7 @@ void tglVector_Resize()
 
 void tglVector_Bool()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     ExpectTrue(!vector);
@@ -78,7 +78,7 @@ void tglVector_Bool()
 
 void tglVector_Assign()
 {
-    TGL::tglVector
+    tglVector
         vector,
         other;
     
@@ -132,7 +132,7 @@ void tglVector_Assign()
 
 void tglVector_Subtract()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     ExpectVectorEqual(vector, tglVector());
@@ -159,7 +159,7 @@ void tglVector_Subtract()
 
 void tglVector_Add()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     ExpectVectorEqual(vector, tglVector());
@@ -186,7 +186,7 @@ void tglVector_Add()
 
 void tglVector_Multiply()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     ExpectVectorEqual(vector, tglVector());
@@ -228,7 +228,7 @@ void tglVector_Multiply()
 
 void tglVector_Divide()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     ExpectVectorEqual(vector, tglVector());
@@ -270,7 +270,7 @@ void tglVector_Divide()
 
 void tglVector_RaisePower()
 {
-    TGL::tglVector
+    tglVector
         vector;
     
     ExpectVectorEqual(vector, tglVector());
@@ -324,7 +324,7 @@ void tglVector_RaisePower()
 
 void tglVector_ExternalOperators()
 {
-    TGL::tglVector
+    tglVector
         vector,
         vectorSame,
         vectorDifferent;
@@ -366,7 +366,7 @@ void tglVector_ExternalOperators()
         before = 5;
 
     ExpectVectorEqual(vectorDifferent + vector, tglVector({5, 5}));
-    ExpectVectorEqual(vectorDifferent + tglVector({6, 6, 6}), tglVector({10, 10, 6}));
+    ExpectVectorEqual(vectorDifferent + tglVector({6, 6, 6}), tglVector({10, 10}));
     ExpectVectorEqual(vectorDifferent + tglVector(), vectorDifferent);
     ExpectVectorEqual(vectorDifferent + after, tglVector({5, 5}));
     ExpectVectorEqual(tglVector()     + after, tglVector());
@@ -374,7 +374,7 @@ void tglVector_ExternalOperators()
     ExpectVectorEqual(before          + tglVector(), tglVector());
 
     ExpectVectorEqual(vectorDifferent - vector, tglVector({3, 3}));
-    ExpectVectorEqual(vectorDifferent - tglVector({6, 6, 6}), tglVector({-2, -2, -6}));
+    ExpectVectorEqual(vectorDifferent - tglVector({6, 6, 6}), tglVector({-2, -2}));
     ExpectVectorEqual(vectorDifferent - tglVector(), vectorDifferent);
     ExpectVectorEqual(vectorDifferent - after, tglVector({3, 3}));
     ExpectVectorEqual(tglVector()     - after, tglVector());
@@ -382,28 +382,77 @@ void tglVector_ExternalOperators()
     ExpectVectorEqual(before          - tglVector(), tglVector());
 
     ExpectVectorEqual(vectorDifferent / vector, vectorDifferent);
-    ExpectVectorEqual(vectorDifferent / tglVector({6, 6, 6}), tglVector({0, 0, 0}));
-    ExpectVectorEqual(vectorDifferent / tglVector(), tglVector({0, 0}));
+    ExpectVectorEqual(vectorDifferent / tglVector({6, 6, 6}), tglVector({0, 0}));
+    ExpectVectorEqual(vectorDifferent / tglVector(), tglVector({4, 4}));
     ExpectVectorEqual(vectorDifferent / after, vectorDifferent);
     ExpectVectorEqual(tglVector()     / after, tglVector());
     ExpectVectorEqual(before          / vectorDifferent, tglVector({1, 1}));
     ExpectVectorEqual(before          / tglVector(), tglVector());
 
     ExpectVectorEqual(vectorDifferent * vector, vectorDifferent);
-    ExpectVectorEqual(vectorDifferent * tglVector({6, 6, 6}), tglVector({24, 24, 0}));
-    ExpectVectorEqual(vectorDifferent * tglVector(), tglVector({0, 0}));
+    ExpectVectorEqual(vectorDifferent * tglVector({6, 6, 6}), tglVector({24, 24}));
+    ExpectVectorEqual(vectorDifferent * tglVector(), tglVector({4, 4}));
     ExpectVectorEqual(vectorDifferent * after, vectorDifferent);
     ExpectVectorEqual(tglVector()     * after, tglVector());
     ExpectVectorEqual(before          * vectorDifferent, tglVector({20, 20}));
     ExpectVectorEqual(before          * tglVector(), tglVector());
 
     ExpectVectorEqual(vectorDifferent ^ vector, vectorDifferent);
-    ExpectVectorEqual(vectorDifferent ^ tglVector({6, 6, 6}), tglVector({4096, 4096, 0}));
-    ExpectVectorEqual(vectorDifferent ^ tglVector(), tglVector({0, 0}));
+    ExpectVectorEqual(vectorDifferent ^ tglVector({6, 6, 6}), tglVector({4096, 4096}));
+    ExpectVectorEqual(vectorDifferent ^ tglVector(), tglVector({4, 4}));
     ExpectVectorEqual(vectorDifferent ^ after, vectorDifferent);
     ExpectVectorEqual(tglVector()     ^ after, tglVector());
     ExpectVectorEqual(before          ^ vectorDifferent, tglVector({625, 625}));
     ExpectVectorEqual(before          ^ tglVector(), tglVector());
+}
+
+void tglVector_FixedSize()
+{
+    tglVector
+        vector0(0),
+        vector1(1),
+        vector2(2),
+        vector3(3),
+        vector4(4);
+    
+    ExpectEqual(vector0.Size(), 0);
+    ExpectEqual(vector1.Size(), 1);
+    ExpectEqual(vector2.Size(), 2);
+    ExpectEqual(vector3.Size(), 3);
+    ExpectEqual(vector4.Size(), 4);
+
+    ExpectVectorEqual(vector0, tglVector({}));
+    ExpectVectorEqual(vector1, tglVector({0}));
+    ExpectVectorEqual(vector2, tglVector({0, 0}));
+    ExpectVectorEqual(vector3, tglVector({0, 0, 0}));
+    ExpectVectorEqual(vector4, tglVector({0, 0, 0, 0}));
+
+    vector0 += 1;
+    vector1 += 1;
+    vector2 += 1;
+    vector3 += 1;
+    vector4 += 1;
+
+    ExpectVectorEqual(vector0, tglVector({}));
+    ExpectVectorEqual(vector1, tglVector({1}));
+    ExpectVectorEqual(vector2, tglVector({1, 1}));
+    ExpectVectorEqual(vector3, tglVector({1, 1, 1}));
+    ExpectVectorEqual(vector4, tglVector({1, 1, 1, 1}));
+
+    tglVector
+        megaVector = {1, 1, 1, 1, 1, 1, 1, 1};
+
+    vector0 += megaVector;
+    vector1 += megaVector;
+    vector2 += megaVector;
+    vector3 += megaVector;
+    vector4 += megaVector;
+
+    ExpectVectorEqual(vector0, tglVector({}));
+    ExpectVectorEqual(vector1, tglVector({2}));
+    ExpectVectorEqual(vector2, tglVector({2, 2}));
+    ExpectVectorEqual(vector3, tglVector({2, 2, 2}));
+    ExpectVectorEqual(vector4, tglVector({2, 2, 2, 2}));
 }
 }
 
@@ -421,6 +470,7 @@ TGL::Test::test_tglVector::test_tglVector(TGL::Test::test_TGL &testMaster) : tes
        ,{"tglVector_Divide", tglVectorTests::tglVector_Divide}
        ,{"tglVector_RaisePower", tglVectorTests::tglVector_RaisePower}
        ,{"tglVector_ExternalOperators", tglVectorTests::tglVector_ExternalOperators}
+       ,{"tglVector_FixedSize", tglVectorTests::tglVector_FixedSize}
     };
 }
 
