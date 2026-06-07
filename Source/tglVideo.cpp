@@ -86,8 +86,8 @@ TGL::tglVideo &TGL::tglVideo::operator =(HWND newHandle)
 
 TGL::tglVideo &TGL::tglVideo::operator =(const TGL::tglWindow &window)
 {
-    this->m_destination.width  = window.current.width;
-    this->m_destination.height = window.current.height;
+    this->m_destination.width  = window.current.size[0];
+    this->m_destination.height = window.current.size[1];
 
     return (*this) = window.handle();
 }

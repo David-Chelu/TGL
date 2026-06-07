@@ -35,7 +35,8 @@ struct TGL::WindowAttributes
         GetValues() const;
 
     void
-        Initialize();
+        Initialize(),
+        LockVectors();
 
     bool
         ResizeToWorkRect(),
@@ -51,17 +52,9 @@ struct TGL::WindowAttributes
     DWORD
         style;
 
-//    TGL::tglVector2D
-//        position,
-//        size;
-
-    largeint_t
-        xPosition,
-        yPosition;
-
-    largeuint_t
-        width,
-        height;
+   TGL::tglVector
+       position,
+       size;
 
     HWND
         parent;

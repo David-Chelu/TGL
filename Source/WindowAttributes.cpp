@@ -5,6 +5,7 @@
 
 TGL::WindowAttributes::WindowAttributes()
 {
+    LockVectors();
     this->Initialize();
 }
 
@@ -22,20 +23,23 @@ TGL::WindowAttributes::WindowAttributes(const std::string &className
                                        ,WNDPROC callback
                                        ,COLORREF background)
                                        :
-                                        className (className )
-                                       ,windowName(windowName)
-                                       ,style     (style     )
-                                       ,xPosition (xPosition )
-                                       ,yPosition (yPosition )
-                                       ,width     (width     )
-                                       ,height    (height    )
-                                       ,parent    (parent    )
-                                       ,menu      (menu      )
-                                       ,instance  (instance  )
-                                       ,lpParam   (lpParam   )
-                                       ,callback  (callback  )
-                                       ,background(background)
+                                        className  (className )
+                                       ,windowName (windowName)
+                                       ,style      (style     )
+                                       ,parent     (parent    )
+                                       ,menu       (menu      )
+                                       ,instance   (instance  )
+                                       ,lpParam    (lpParam   )
+                                       ,callback   (callback  )
+                                       ,background (background)
 {
+    LockVectors();
+
+    position[0] = xPosition;
+    position[1] = yPosition;
+
+    size[0] = width;
+    size[1] = height;
 }
 
 
@@ -47,11 +51,11 @@ TGL::WindowAttributes &TGL::WindowAttributes::operator =(const TGL::WindowAttrib
 
     this->style = attributes.style;
 
-    this->xPosition = attributes.xPosition;
-    this->yPosition = attributes.yPosition;
+    this->position[0] = attributes.position[0];
+    this->position[1] = attributes.position[1];
 
-    this->width  = attributes.width;
-    this->height = attributes.height;
+    this->size[0] = attributes.size[0];
+    this->size[1] = attributes.size[1];
 
     this->background = attributes.background;
 
@@ -76,8 +80,8 @@ std::string TGL::WindowAttributes::GetValues() const
          + "\n\tClass Name: " + this->className
          + "\n\tWindowName: " + this->windowName
          + "\n\tStyle: " + TGL::StringHex(this->style)
-         + "\n\tPosition: (" + TGL::String(this->xPosition) + ", " + TGL::String(this->yPosition) + ')'
-         + "\n\tSize: (" + TGL::String(this->width) + ", " + TGL::String(this->height) + ')'
+         + "\n\tPosition: (" + TGL::String(this->position[0]) + ", " + TGL::String(this->position[1]) + ')'
+         + "\n\tSize: (" + TGL::String(this->size[0]) + ", " + TGL::String(this->size[1]) + ')'
          + "\n\tHas Parent: " + (this->parent? "Yes" : "No")
          + "\n\tHas Menu: " + (this->menu? "Yes" : "No")
          + "\n\tHas Instance: " + (this->instance? "Yes" : "No")
@@ -96,11 +100,11 @@ void TGL::WindowAttributes::Initialize()
 
     this->style = WS_POPUP;
 
-    this->xPosition =
-    this->yPosition = 0;
+    this->position[0] =
+    this->position[1] = 0;
 
-    this->width  = TGL::xScreen();
-    this->height = TGL::yScreen();
+    this->size[0]  = TGL::xScreen();
+    this->size[1] = TGL::yScreen();
 
     this->parent = NULL;
 
@@ -115,6 +119,12 @@ void TGL::WindowAttributes::Initialize()
     this->background = BLACK_BRUSH;
 }
 
+void TGL::WindowAttributes::LockVectors()
+{
+    position.LockSize(2);
+    size    .LockSize(2);
+}
+
 bool TGL::WindowAttributes::ResizeToWorkRect()
 {
     bool
@@ -125,8 +135,8 @@ bool TGL::WindowAttributes::ResizeToWorkRect()
                                   &workRect,
                                   0);
     {
-        width  = workRect.right  - workRect.left;
-        height = workRect.bottom - workRect.top;
+        size[0]  = workRect.right  - workRect.left;
+        size[1] = workRect.bottom - workRect.top;
     }
 
     return result;
@@ -142,8 +152,8 @@ bool TGL::WindowAttributes::SnapToWorkRect()
                                   &workRect,
                                   0);
     {
-        xPosition = workRect.left;
-        yPosition = workRect.top;
+        position[0] = workRect.left;
+        position[1] = workRect.top;
     }
 
     return result;

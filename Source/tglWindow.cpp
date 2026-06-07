@@ -95,18 +95,18 @@ bool TGL::tglWindow::Update(HWND insertAfter, UINT flags)
 {
     if (SetWindowPos(this->m_handle
                     ,insertAfter
-                    ,this->m_centered? (TGL::xScreen() - planned.width)  / 2 : planned.xPosition
-                    ,this->m_centered? (TGL::yScreen() - planned.height) / 2 : planned.yPosition
-                    ,planned.width
-                    ,planned.height
+                    ,this->m_centered? (TGL::xScreen() - planned.size[0]) / 2 : planned.position[0]
+                    ,this->m_centered? (TGL::yScreen() - planned.size[1]) / 2 : planned.position[1]
+                    ,planned.size[0]
+                    ,planned.size[1]
                     ,flags
                     ))
     {
-        this->m_current.xPosition = this->m_planned.xPosition;
-        this->m_current.yPosition = this->m_planned.yPosition;
+        this->m_current.position[0] = this->m_planned.position[0];
+        this->m_current.position[1] = this->m_planned.position[1];
 
-        this->m_current.width     = this->m_planned.width;
-        this->m_current.height    = this->m_planned.height;
+        this->m_current.size[0] = this->m_planned.size[0];
+        this->m_current.size[1] = this->m_planned.size[1];
 
         return true;
     }
@@ -116,11 +116,11 @@ bool TGL::tglWindow::Update(HWND insertAfter, UINT flags)
 
 bool TGL::tglWindow::FillScreen()
 {
-    this->planned.xPosition = 0;
-    this->planned.yPosition = 0;
+    this->planned.position[0] = 0;
+    this->planned.position[1] = 0;
 
-    this->planned.width  = TGL::xScreen();
-    this->planned.height = TGL::yScreen();
+    this->planned.size[0] = TGL::xScreen();
+    this->planned.size[1] = TGL::yScreen();
 
     return this->Update();
 }
@@ -192,10 +192,10 @@ HWND TGL::tglWindow::Create(const TGL::WindowAttributes &attributes)
     if (!(this->m_handle = CreateWindow(attributes. className.c_str()
                                        ,attributes.windowName.c_str()
                                        ,attributes.style
-                                       ,this->m_centered? (TGL::xScreen() - attributes.width)  / 2 : attributes.xPosition
-                                       ,this->m_centered? (TGL::yScreen() - attributes.height) / 2 : attributes.yPosition
-                                       ,attributes.width
-                                       ,attributes.height
+                                       ,this->m_centered? (TGL::xScreen() - attributes.size[0]) / 2 : attributes.position[0]
+                                       ,this->m_centered? (TGL::yScreen() - attributes.size[1]) / 2 : attributes.position[1]
+                                       ,attributes.size[0]
+                                       ,attributes.size[1]
                                        ,attributes.parent
                                        ,attributes.menu
                                        ,attributes.instance
