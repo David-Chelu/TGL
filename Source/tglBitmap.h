@@ -102,6 +102,7 @@ public:
        ,StretchMul(largeuint_t xMultiplier, largeuint_t yMultiplier)
        ,StretchMulX(largeuint_t xMultiplier)
        ,StretchMulY(largeuint_t yMultiplier)
+       ,Contains(largeint_t x, largeint_t y)
        ;
 
     static bool

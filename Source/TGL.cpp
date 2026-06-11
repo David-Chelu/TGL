@@ -369,6 +369,12 @@ Templated void *TGL::Set(void *destination, DataType value, largeuint_t count)
     return destination;
 }
 
+Templated
+bool TGL::IsBetween(DataType value, DataType lowerBound, DataType upperBound)
+{
+    return lowerBound <= value && value <= upperBound;
+}
+
 void TGL::StepCopyX(void *destination
                    ,void *source
                    ,largeuint_t size

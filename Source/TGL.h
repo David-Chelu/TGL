@@ -258,6 +258,7 @@ namespace TGL
 
     Templated void *Copy(void *destination, void   *source, largeuint_t count);
     Templated void *Set (void *destination, DataType value, largeuint_t count);
+    Templated bool IsBetween(DataType value, DataType lowerBound, DataType upperBound);
 
     void
         StepCopyX(void *destination

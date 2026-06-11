@@ -270,6 +270,12 @@ bool TGL::tglBitmap::StretchMulY(largeuint_t yMultiplier)
     return StretchY(current.height * yMultiplier);
 }
 
+bool TGL::tglBitmap::Contains(largeint_t x, largeint_t y)
+{
+    return xPosition <= x && x < xPosition + current.width &&
+           yPosition <= y && y < yPosition + current.height;
+}
+
 bool TGL::tglBitmap::Exists(const std::string &file)
 {
     return Exists(file.c_str());

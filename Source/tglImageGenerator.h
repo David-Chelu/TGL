@@ -46,6 +46,8 @@ public:
                     ,bool relative = true
                     ) const
        ,Wipe()
+       ,Wipe(TGL::tglBitmap &bitmap)
+       ,AddLayer(TGL::tglBitmap &bitmap)
        ;
 
     bool
@@ -55,6 +57,7 @@ public:
        ,CombineByPasting(bool alpha = true)
        ,CombineByPastingMT(TGL::tglBitmap &destination, bool alpha = true)
        ,CombineByPastingMT(bool alpha = true)
+       ,CombineByFirstOccurrence(TGL::tglBitmap &destination, bool alpha = true)
        ;
 
     const TGL::tglBitmap

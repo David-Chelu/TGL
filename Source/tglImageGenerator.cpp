@@ -37,7 +37,7 @@ void TGL::tglImageGenerator::GetRectangle(const TGL::tglBitmap &destination
     }
 
     if (x1 < destination.xPosition) x1 = destination.xPosition;
-    if (y1 < destination.xPosition) y1 = destination.xPosition;
+    if (y1 < destination.yPosition) y1 = destination.yPosition;
     if (x2 > largeint_t(destination.xPosition + destination.current.width )) x2 = destination.xPosition + destination.current.width;
     if (y2 > largeint_t(destination.yPosition + destination.current.height)) y2 = destination.yPosition + destination.current.height;
 }
@@ -55,10 +55,26 @@ void TGL::tglImageGenerator::GetRectangle(largeint_t &x1
 
 void TGL::tglImageGenerator::Wipe()
 {
-    for (largeuint_t index = 0; index < m_image.size; ++index)
+    Wipe(m_image);
+}
+
+void TGL::tglImageGenerator::Wipe(TGL::tglBitmap &bitmap)
+{
+    for (largeuint_t index = 0; index < bitmap.size; ++index)
     {
-        m_image.image[index] = 0;
+        bitmap.image[index] = 0;
     }
+}
+
+void TGL::tglImageGenerator::AddLayer(TGL::tglBitmap &bitmap)
+{
+    Layer
+        layer;
+
+    layer.bitmap = &bitmap;
+    layer.type = TGL::bitmap;
+
+    layers_.push_back(layer);
 }
 
 bool TGL::tglImageGenerator::Combine(TGL::tglBitmap &destination)
@@ -456,6 +472,51 @@ bool TGL::tglImageGenerator::CombineByPastingMT(TGL::tglBitmap &destination, boo
 bool TGL::tglImageGenerator::CombineByPastingMT(bool alpha)
 {
     return CombineByPastingMT(m_image, alpha);
+}
+
+bool TGL::tglImageGenerator::CombineByFirstOccurrence(TGL::tglBitmap &destination, bool alpha)
+{
+    largeint_t
+        xStart, xStop, xPixel,
+        yStart, yStop, yPixel;
+
+    COLORREF
+        color;
+
+
+
+    xStart = yStart = 0;
+    xStop = destination.current.width;
+    yStop = destination.current.height;
+
+
+
+    ParseRangeY()
+    {
+        destination(yPixel);
+
+        ParseRangeX()
+        {
+            color = TGL::unrenderedColor;
+
+            for (auto &layer : layers_)
+            {
+                if (TGL::bitmap == layer.type && layer.bitmap->Contains(destination.xPosition + xPixel, destination.yPosition + yPixel))
+                {
+                    // color = layer.bitmap->operator()(yPixel - yStart + layer.bitmap->yPosition - destination.yPosition)[xPixel - xStart + layer.bitmap->xPosition - destination.xPosition].color();
+                    largeint_t
+                        y = yPixel + destination.yPosition - layer.bitmap->yPosition,
+                        x = xPixel + destination.xPosition - layer.bitmap->xPosition;
+                    
+                    color = layer.bitmap->operator()(y)[x].color();
+                }
+            }
+
+            destination[xPixel] = color;
+        }
+    }
+
+    return true;
 }
 
 const TGL::tglBitmap &TGL::tglImageGenerator::GetBitmap() const
